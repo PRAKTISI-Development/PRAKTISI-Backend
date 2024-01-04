@@ -5,7 +5,9 @@ from apps.database import SessionLocal, engine
 from apps.controllers import aslab_controller, praktikan_controller, jadwal_controller, mata_kuliah_controller, nilai_akhir_controller, tugas_controller, user_controller
 from apps.models import Base
 
-app = FastAPI()
+app = FastAPI(
+    title="REST-SERVER PRAKTISI"
+)
 
 # CORS middleware untuk mengizinkan permintaan dari semua origin
 app.add_middleware(

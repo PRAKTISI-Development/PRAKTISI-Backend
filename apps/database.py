@@ -12,3 +12,11 @@ engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base: DeclarativeMeta = declarative_base()
+
+# Fungsi untuk mendapatkan objek sesi basis data
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
