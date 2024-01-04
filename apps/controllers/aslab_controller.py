@@ -4,7 +4,7 @@ from apps.services import aslab_service, auth_service
 from apps.models.aslab import Aslab
 from apps.models.user import User
 from apps.database import SessionLocal
-from apps.services.aslab_service import create_aslab, get_aslab, get_aslabs, update_aslab, delete_aslab
+from apps.services.aslab_service import *
 from apps.database import get_db
 
 router = APIRouter()

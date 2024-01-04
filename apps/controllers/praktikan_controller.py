@@ -1,9 +1,16 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from apps.services.praktikan_service import create_praktikan, get_praktikan, get_praktikans, update_praktikan, delete_praktikan
+from apps.services.praktikan_service import *
+from apps.models import Praktikan 
+from apps.services import praktikan_service
 from apps.database import get_db
+from apps.services import auth_service
 
 router = APIRouter()
+
+@router.post("/login")
+async def login_for_access_token(form_data: auth_service.OAuth2PasswordRequestForm = Depends()):
+    return praktikan_service.login(form_data)
 
 @router.post("/create", response_model=dict)
 def create_praktikan_endpoint(praktikan_data: dict, db: Session = Depends(get_db)):
