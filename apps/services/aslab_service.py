@@ -5,7 +5,6 @@ from apps.models.user import User
 from apps.database import SessionLocal, engine
 from apps.services import auth_service
 from apps.models import Aslab
-from apps.schemas import AslabCreate
 
 def login(form_data: auth_service.OAuth2PasswordRequestForm = auth_service.Depends()):
     db = SessionLocal()
