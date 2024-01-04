@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.main import app
+from apps.main import app
 import uvicorn as uv
 
 origins = ["*"]
