@@ -5,9 +5,9 @@ from apps.models.aslab import Aslab
 from apps.models.user import User
 from apps.database import SessionLocal, engine
 from apps.services import auth_service
-from apps.models import Praktikan
+from apps.models.praktikan import Praktikan
 
-def login(form_data: auth_service.OAuth2PasswordRequestForm = auth_service.Depends()):
+def login(form_data: auth_service.OAuth2PasswordBearer = auth_service.Depends()):
     db = SessionLocal()
 
     user = db.query(User).filter(User.nim == form_data.username, User.tipe_user == "aslab").first()
@@ -35,7 +35,7 @@ def get_praktikan(db: Session, nim: str):
 def get_praktikans(db: Session):
     return db.query(Praktikan).all()
 
-def update_praktikan(db: Session, nim: str, praktikan_data: PraktikanCreate):
+def update_praktikan(db: Session, nim: str, praktikan_data: Praktikan):
     db_praktikan = db.query(Praktikan).filter(Praktikan.nim == nim).first()
     for key, value in praktikan_data.dict().items():
         setattr(db_praktikan, key, value)

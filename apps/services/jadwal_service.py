@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from apps.models import Jadwal
+from apps.models.jadwal import Jadwal
 
 def create_jadwal(db: Session, jadwal_data: Jadwal):
     db_jadwal = Jadwal(**jadwal_data.dict())

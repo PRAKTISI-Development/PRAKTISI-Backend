@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from apps.models import NilaiAkhir
+from apps.models.nilai_akhir import NilaiAkhir
 
 def create_nilai_akhir(db: Session, nilai_akhir_data: NilaiAkhir):
     db_nilai_akhir = NilaiAkhir(**nilai_akhir_data.dict())

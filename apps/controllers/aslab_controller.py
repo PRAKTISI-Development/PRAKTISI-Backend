@@ -10,26 +10,26 @@ from apps.database import get_db
 router = APIRouter()
 
 @router.post("/login")
-async def login_for_access_token(form_data: auth_service.OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(form_data: auth_service.OAuth2PasswordBearer = Depends()):
     return aslab_service.login(form_data)
 
-@router.post("/create", response_model=dict)
-def create_aslab_endpoint(aslab_data: dict, db: Session = Depends(get_db)):
+@router.post("/", response_model=dict)
+async def create_aslab_endpoint(aslab_data: dict, db: Session = Depends(get_db)):
     return create_aslab(db, aslab_data)
 
 @router.get("/{nim}", response_model=dict)
-def get_aslab_endpoint(nim: str, db: Session = Depends(get_db)):
+async def get_aslab_endpoint(nim: str, db: Session = Depends(get_db)):
     return get_aslab(db, nim)
 
 @router.get("/", response_model=list)
-def get_aslabs_endpoint(db: Session = Depends(get_db)):
+async def get_aslabs_endpoint(db: Session = Depends(get_db)):
     return get_aslabs(db)
 
 @router.put("/{nim}", response_model=dict)
-def update_aslab_endpoint(nim: str, aslab_data: dict, db: Session = Depends(get_db)):
+async def update_aslab_endpoint(nim: str, aslab_data: dict, db: Session = Depends(get_db)):
     return update_aslab(db, nim, aslab_data)
 
 @router.delete("/{nim}", response_model=dict)
-def delete_aslab_endpoint(nim: str, db: Session = Depends(get_db)):
+async def delete_aslab_endpoint(nim: str, db: Session = Depends(get_db)):
     return delete_aslab(db, nim)
 

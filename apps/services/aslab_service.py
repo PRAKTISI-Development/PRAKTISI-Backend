@@ -4,9 +4,8 @@ from apps.models.aslab import Aslab
 from apps.models.user import User
 from apps.database import SessionLocal, engine
 from apps.services import auth_service
-from apps.models import Aslab
 
-def login(form_data: auth_service.OAuth2PasswordRequestForm = auth_service.Depends()):
+def login(form_data: auth_service.OAuth2PasswordBearer = auth_service.Depends()):
     db = SessionLocal()
 
     user = db.query(User).filter(User.nim == form_data.username, User.tipe_user == "aslab").first()
@@ -21,7 +20,7 @@ def login(form_data: auth_service.OAuth2PasswordRequestForm = auth_service.Depen
     access_token = auth_service.create_access_token(data={"sub": form_data.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
-def create_aslab(db: Session, aslab_data: AslabCreate):
+def create_aslab(db: Session, aslab_data: Aslab):
     db_aslab = Aslab(**aslab_data.dict())
     db.add(db_aslab)
     db.commit()
@@ -34,7 +33,7 @@ def get_aslab(db: Session, nim: str):
 def get_aslabs(db: Session):
     return db.query(Aslab).all()
 
-def update_aslab(db: Session, nim: str, aslab_data: AslabCreate):
+def update_aslab(db: Session, nim: str, aslab_data: Aslab):
     db_aslab = db.query(Aslab).filter(Aslab.nim == nim).first()
     for key, value in aslab_data.dict().items():
         setattr(db_aslab, key, value)

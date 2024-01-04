@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from apps.models import Tugas
+from apps.models.tugas import Tugas
 
 def create_tugas(db: Session, tugas_data: Tugas):
     db_tugas = Tugas(**tugas_data.dict())

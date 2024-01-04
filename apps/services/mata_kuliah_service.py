@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from apps.models import MataKuliah
+from apps.models.mata_kuliah import MataKuliah
 
 def get_mata_kuliah(db: Session):
     return db.query(MataKuliah).all()
