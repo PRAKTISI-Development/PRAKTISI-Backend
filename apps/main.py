@@ -1,7 +1,6 @@
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from sqlalchemy.orm import Session
-from apps.database import SessionLocal, engine
+from apps.database import engine
 from apps.controllers import aslab_controller, praktikan_controller, jadwal_controller, mata_kuliah_controller, nilai_akhir_controller, tugas_controller, user_controller
 from apps.models import Base
 
