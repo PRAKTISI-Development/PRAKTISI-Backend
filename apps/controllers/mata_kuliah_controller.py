@@ -8,7 +8,7 @@ from apps.helpers import response
 
 router = APIRouter()
 
-@router.get("/", response_model=List[MataKuliah])
+@router.get("/", response_model=None)
 async def get_all_mata_kuliah(db: Session = Depends(get_db)):
     try:
         all_mata_kuliah = mata_kuliah_service.get_mata_kuliah(db)
