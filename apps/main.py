@@ -5,7 +5,13 @@ from apps.controllers import aslab_controller, praktikan_controller, jadwal_cont
 from apps.models import Base
 
 app = FastAPI(
-    title="REST-SERVER PRAKTISI"
+    title="REST-SERVER PRAKTISI",
+    debug=True,
+    version="1.0.0",
+    description="PRAKTISI BACKEND APP",
+    docs_url="/api_docs",
+    redoc_url="/redocs",
+    openapi_url="/openapi.json",
 )
 
 app.add_middleware(
