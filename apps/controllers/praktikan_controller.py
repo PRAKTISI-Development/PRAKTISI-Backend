@@ -1,33 +1,56 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from apps.services.praktikan_service import *
-from apps.models.praktikan import Praktikan 
-from apps.services import praktikan_service
 from apps.database import get_db
-from apps.services import auth_service
+from apps.helpers import response
+from apps.services.auth_service import OAuth2PasswordBearer
 
 router = APIRouter()
 
 @router.post("/login")
-async def login_for_access_token(form_data: auth_service.OAuth2PasswordBearer = Depends()):
-    return praktikan_service.login(form_data)
+async def login_for_access_token(form_data: OAuth2PasswordBearer = Depends()):
+    try:
+        token = login(form_data)
+        return response(status_code=200, success=True, msg="Login berhasil", data=token)
+    except HTTPException as e:
+        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.post("/create", response_model=dict)
 async def create_praktikan_endpoint(praktikan_data: dict, db: Session = Depends(get_db)):
-    return create_praktikan(db, praktikan_data)
+    try:
+        new_praktikan = create_praktikan(db, praktikan_data)
+        return response(status_code=201, success=True, msg="Praktikan berhasil dibuat", data=new_praktikan)
+    except HTTPException as e:
+        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.get("/{nim}", response_model=dict)
 async def get_praktikan_endpoint(nim: str, db: Session = Depends(get_db)):
-    return get_praktikan(db, nim)
+    try:
+        praktikan_detail = get_praktikan(db, nim)
+        return response(status_code=200, success=True, msg="Data Praktikan ditemukan", data=praktikan_detail)
+    except HTTPException as e:
+        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.get("/", response_model=list)
 async def get_praktikans_endpoint(db: Session = Depends(get_db)):
-    return get_praktikans(db)
+    try:
+        praktikans_list = get_praktikans(db)
+        return response(status_code=200, success=True, msg="Data Praktikan ditemukan", data=praktikans_list)
+    except HTTPException as e:
+        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.put("/{nim}", response_model=dict)
 async def update_praktikan_endpoint(nim: str, praktikan_data: dict, db: Session = Depends(get_db)):
-    return update_praktikan(db, nim, praktikan_data)
+    try:
+        updated_praktikan = update_praktikan(db, nim, praktikan_data)
+        return response(status_code=200, success=True, msg="Data Praktikan berhasil diperbarui", data=updated_praktikan)
+    except HTTPException as e:
+        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.delete("/{nim}", response_model=dict)
 async def delete_praktikan_endpoint(nim: str, db: Session = Depends(get_db)):
-    return delete_praktikan(db, nim)
+    try:
+        deleted_praktikan = delete_praktikan(db, nim)
+        return response(status_code=200, success=True, msg="Praktikan berhasil dihapus", data=deleted_praktikan)
+    except HTTPException as e:
+        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)

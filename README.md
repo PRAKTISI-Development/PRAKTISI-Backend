@@ -274,7 +274,7 @@ For example, for an `int`:
 
 ```Python
 item_id: int
-```
+``` 
 
 or for a more complex `Item` model:
 
