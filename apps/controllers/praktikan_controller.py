@@ -1,56 +1,50 @@
-from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from apps.services.praktikan_service import *
-from apps.database import get_db
-from apps.helpers import response
-from apps.services.auth_service import OAuth2PasswordBearer
+from sqlalchemy.orm import Session
+from fastapi import HTTPException, status
+from apps.models.aslab import Aslab
+from apps.models.user import User
+from apps.database import SessionLocal, engine
+from apps.service import auth_service
+from apps.models.praktikan import Praktikan
 
-router = APIRouter()
+def login(form_data: auth_service.OAuth2PasswordBearer = auth_service.Depends()):
+    db = SessionLocal()
 
-@router.post("/login")
-async def login_for_access_token(form_data: OAuth2PasswordBearer = Depends()):
-    try:
-        token = login(form_data)
-        return response(status_code=200, success=True, msg="Login berhasil", data=token)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+    user = db.query(User).filter(User.nim == form_data.username, User.tipe_user == "aslab").first()
 
-@router.post("/create", response_model=dict)
-async def create_praktikan_endpoint(praktikan_data: dict, db: Session = Depends(get_db)):
-    try:
-        new_praktikan = create_praktikan(db, praktikan_data)
-        return response(status_code=201, success=True, msg="Praktikan berhasil dibuat", data=new_praktikan)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+    if user is None or not auth_service.verify_password(form_data.password, user.password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
 
-@router.get("/{nim}", response_model=dict)
-async def get_praktikan_endpoint(nim: str, db: Session = Depends(get_db)):
-    try:
-        praktikan_detail = get_praktikan(db, nim)
-        return response(status_code=200, success=True, msg="Data Praktikan ditemukan", data=praktikan_detail)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+    access_token = auth_service.create_access_token(data={"sub": form_data.username})
+    return {"access_token": access_token, "token_type": "bearer"}
 
-@router.get("/", response_model=list)
-async def get_praktikans_endpoint(db: Session = Depends(get_db)):
-    try:
-        praktikans_list = get_praktikans(db)
-        return response(status_code=200, success=True, msg="Data Praktikan ditemukan", data=praktikans_list)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+def create_praktikan(db: Session, praktikan_data: Praktikan):
+    db_praktikan = Praktikan(**praktikan_data.dict())
+    db.add(db_praktikan)
+    db.commit()
+    db.refresh(db_praktikan)
+    return db_praktikan
 
-@router.put("/{nim}", response_model=dict)
-async def update_praktikan_endpoint(nim: str, praktikan_data: dict, db: Session = Depends(get_db)):
-    try:
-        updated_praktikan = update_praktikan(db, nim, praktikan_data)
-        return response(status_code=200, success=True, msg="Data Praktikan berhasil diperbarui", data=updated_praktikan)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+def get_praktikan(db: Session, nim: str):
+    return db.query(Praktikan).filter(Praktikan.nim == nim).first()
 
-@router.delete("/{nim}", response_model=dict)
-async def delete_praktikan_endpoint(nim: str, db: Session = Depends(get_db)):
-    try:
-        deleted_praktikan = delete_praktikan(db, nim)
-        return response(status_code=200, success=True, msg="Praktikan berhasil dihapus", data=deleted_praktikan)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+def get_praktikans(db: Session):
+    return db.query(Praktikan).all()
+
+def update_praktikan(db: Session, nim: str, praktikan_data: Praktikan):
+    db_praktikan = db.query(Praktikan).filter(Praktikan.nim == nim).first()
+    for key, value in praktikan_data.dict().items():
+        setattr(db_praktikan, key, value)
+    db.commit()
+    db.refresh(db_praktikan)
+    return db_praktikan
+
+def delete_praktikan(db: Session, nim: str):
+    db_praktikan = db.query(Praktikan).filter(Praktikan.nim == nim).first()
+    db.delete(db_praktikan)
+    db.commit()
+    return {"message": "Praktikan deleted successfully"}

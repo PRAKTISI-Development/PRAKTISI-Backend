@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from apps.services import auth_service
+from apps.service import auth_service
 from apps.database import get_db
 
 router = APIRouter()

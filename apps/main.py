@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from apps.database import engine
-from apps.controllers import aslab_controller, praktikan_controller, jadwal_controller, mata_kuliah_controller, nilai_akhir_controller, tugas_controller, user_controller
+from apps.routes import aslab_routes, jadwal_routes, mata_kuliah_routes, nilai_akhir_routes, praktikan_routes, tugas_routes, user_routes
 from apps.models import Base
 
 app = FastAPI(
@@ -23,10 +23,10 @@ app.add_middleware(
 
 Base.metadata.create_all(bind=engine)
 
-app.include_router(aslab_controller.router, prefix="/aslab", tags=["Aslab"])
-app.include_router(praktikan_controller.router, prefix="/praktikan", tags=["Praktikan"])
-app.include_router(mata_kuliah_controller.router, prefix="/mata_kuliah", tags=["Jadwal"])
-app.include_router(jadwal_controller.router, prefix="/jadwal", tags=["Jadwal"])
-app.include_router(nilai_akhir_controller.router, prefix="/nilai)akhir", tags=["Nilai Akhir"])
-app.include_router(tugas_controller.router, prefix="/tugas", tags=["Tugas"])
-app.include_router(user_controller.router, prefix="/user", tags=["User"])
+app.include_router(aslab_routes.router, prefix="/aslab", tags=["Aslab"])
+app.include_router(praktikan_routes.router, prefix="/praktikan", tags=["Praktikan"])
+app.include_router(mata_kuliah_routes.router, prefix="/mata_kuliah", tags=["Jadwal"])
+app.include_router(jadwal_routes.router, prefix="/jadwal", tags=["Jadwal"])
+app.include_router(nilai_akhir_routes.router, prefix="/nilai)akhir", tags=["Nilai Akhir"])
+app.include_router(tugas_routes.router, prefix="/tugas", tags=["Tugas"])
+app.include_router(user_routes.router, prefix="/user", tags=["User"])

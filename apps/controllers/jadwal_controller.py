@@ -1,47 +1,29 @@
-from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from apps.services.jadwal_service import *
-from apps.database import get_db
-from apps.helpers import response
+from apps.models.jadwal import Jadwal
 
-router = APIRouter()
+def create_jadwal(db: Session, jadwal_data: Jadwal):
+    db_jadwal = Jadwal(**jadwal_data.dict())
+    db.add(db_jadwal)
+    db.commit()
+    db.refresh(db_jadwal)
+    return db_jadwal
 
-@router.post("/create", response_model=dict)
-async def create_jadwal_endpoint(jadwal_data: dict, db: Session = Depends(get_db)):
-    try:
-        new_jadwal = create_jadwal(db, jadwal_data)
-        return response(status_code=201, success=True, msg="Jadwal berhasil dibuat", data=new_jadwal)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+def get_jadwal(db: Session, kode_jadwal: str):
+    return db.query(Jadwal).filter(Jadwal.kode_jadwal == kode_jadwal).first()
 
-@router.get("/{kode_jadwal}", response_model=dict)
-async def get_jadwal_endpoint(kode_jadwal: str, db: Session = Depends(get_db)):
-    try:
-        jadwal_detail = get_jadwal(db, kode_jadwal)
-        return response(status_code=200, success=True, msg="Data Jadwal ditemukan", data=jadwal_detail)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+def get_jadwals(db: Session):
+    return db.query(Jadwal).all()
 
-@router.get("/", response_model=list)
-async def get_jadwals_endpoint(db: Session = Depends(get_db)):
-    try:
-        jadwals_list = get_jadwals(db)
-        return response(status_code=200, success=True, msg="Data Jadwal ditemukan", data=jadwals_list)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+def update_jadwal(db: Session, kode_jadwal: str, jadwal_data: Jadwal):
+    db_jadwal = db.query(Jadwal).filter(Jadwal.kode_jadwal == kode_jadwal).first()
+    for key, value in jadwal_data.dict().items():
+        setattr(db_jadwal, key, value)
+    db.commit()
+    db.refresh(db_jadwal)
+    return db_jadwal
 
-@router.put("/{kode_jadwal}", response_model=dict)
-async def update_jadwal_endpoint(kode_jadwal: str, jadwal_data: dict, db: Session = Depends(get_db)):
-    try:
-        updated_jadwal = update_jadwal(db, kode_jadwal, jadwal_data)
-        return response(status_code=200, success=True, msg="Data Jadwal berhasil diperbarui", data=updated_jadwal)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
-
-@router.delete("/{kode_jadwal}", response_model=dict)
-async def delete_jadwal_endpoint(kode_jadwal: str, db: Session = Depends(get_db)):
-    try:
-        deleted_jadwal = delete_jadwal(db, kode_jadwal)
-        return response(status_code=200, success=True, msg="Jadwal berhasil dihapus", data=deleted_jadwal)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+def delete_jadwal(db: Session, kode_jadwal: str):
+    db_jadwal = db.query(Jadwal).filter(Jadwal.kode_jadwal == kode_jadwal).first()
+    db.delete(db_jadwal)
+    db.commit()
+    return {"message": "Jadwal deleted successfully"}
