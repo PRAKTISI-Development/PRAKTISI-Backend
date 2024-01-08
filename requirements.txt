@@ -4,3 +4,4 @@ uvicorn
 python-dotenv 
 python-jose
 psycopg2
+passlib

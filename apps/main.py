@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from apps.database import engine
-from apps.routes import aslab_routes, jadwal_routes, mata_kuliah_routes, nilai_akhir_routes, praktikan_routes, tugas_routes, user_routes
-from apps.database import Base
+from apps.database import Base, engine
+from apps.routes import auth_routes, aslab_routes, jadwal_routes, mata_kuliah_routes, nilai_akhir_routes, praktikan_routes, tugas_routes, user_routes
 
 app = FastAPI(
     title="REST-SERVER PRAKTISI",
@@ -23,6 +22,7 @@ app.add_middleware(
 
 Base.metadata.create_all(bind=engine)
 
+app.include_router(auth_routes.router, prefix="/auth", tags=["auth"])
 app.include_router(aslab_routes.router, prefix="/api/aslab", tags=["Aslab"])
 app.include_router(praktikan_routes.router, prefix="/api/praktikan", tags=["Praktikan"])
 app.include_router(mata_kuliah_routes.router, prefix="/api/mata_kuliah", tags=["Jadwal"])
