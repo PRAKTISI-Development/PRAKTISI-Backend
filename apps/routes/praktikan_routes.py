@@ -14,6 +14,14 @@ async def create_praktikan_endpoint(praktikan_data: dict, db: Session = Depends(
     except HTTPException as e:
         return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
+@router.get("/", response_model=list)
+async def get_praktikans_endpoint(db: Session = Depends(get_db)):
+    try:
+        praktikans_list = get_praktikans(db)
+        return response(status_code=200, success=True, msg="Data Praktikan ditemukan", data=praktikans_list)
+    except HTTPException as e:
+        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+
 @router.get("/{nim}", response_model=dict)
 async def get_praktikan_endpoint(nim: str, db: Session = Depends(get_db)):
     try:
@@ -22,13 +30,6 @@ async def get_praktikan_endpoint(nim: str, db: Session = Depends(get_db)):
     except HTTPException as e:
         return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.get("/", response_model=list)
-async def get_praktikans_endpoint(db: Session = Depends(get_db)):
-    try:
-        praktikans_list = get_praktikans(db)
-        return response(status_code=200, success=True, msg="Data Praktikan ditemukan", data=praktikans_list)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.put("/{nim}", response_model=dict)
 async def update_praktikan_endpoint(nim: str, praktikan_data: dict, db: Session = Depends(get_db)):
