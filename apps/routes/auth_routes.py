@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+# routes/auth.py
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
 from apps.database import get_db
@@ -9,9 +10,11 @@ router = APIRouter()
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+# Function untuk mendapatkan user dari database berdasarkan nim
 def get_user(db: Session, username: str):
     return db.query(User).filter(User.nim == username).first()
 
+# Endpoint untuk mendapatkan token setelah login
 @router.post("/token")
 async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
     db = next(get_db())
