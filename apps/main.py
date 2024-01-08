@@ -23,10 +23,10 @@ app.add_middleware(
 
 Base.metadata.create_all(bind=engine)
 
-app.include_router(aslab_routes.router, prefix="/aslab", tags=["Aslab"])
-app.include_router(praktikan_routes.router, prefix="/praktikan", tags=["Praktikan"])
-app.include_router(mata_kuliah_routes.router, prefix="/mata_kuliah", tags=["Jadwal"])
-app.include_router(jadwal_routes.router, prefix="/jadwal", tags=["Jadwal"])
-app.include_router(nilai_akhir_routes.router, prefix="/nilai_akhir", tags=["Nilai Akhir"])
-app.include_router(tugas_routes.router, prefix="/tugas", tags=["Tugas"])
-app.include_router(user_routes.router, prefix="/user", tags=["User"])
+app.include_router(aslab_routes.router, prefix="/api/aslab", tags=["Aslab"])
+app.include_router(praktikan_routes.router, prefix="/api/praktikan", tags=["Praktikan"])
+app.include_router(mata_kuliah_routes.router, prefix="/api/mata_kuliah", tags=["Jadwal"])
+app.include_router(jadwal_routes.router, prefix="/api/jadwal", tags=["Jadwal"])
+app.include_router(nilai_akhir_routes.router, prefix="/api/nilai_akhir", tags=["Nilai Akhir"])
+app.include_router(tugas_routes.router, prefix="/api/tugas", tags=["Tugas"])
+app.include_router(user_routes.router, prefix="/api/user", tags=["User"])

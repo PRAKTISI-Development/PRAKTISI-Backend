@@ -2,18 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from apps.controllers.praktikan_controller import *
 from apps.database import get_db
-from apps.helper import response
-from apps.service.auth_service import OAuth2PasswordBearer
+from apps.helper.response import response
 
 router = APIRouter()
-
-@router.post("/login")
-async def login_for_access_token(form_data: OAuth2PasswordBearer = Depends()):
-    try:
-        token = login(form_data)
-        return response(status_code=200, success=True, msg="Login berhasil", data=token)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.post("/create", response_model=dict)
 async def create_praktikan_endpoint(praktikan_data: dict, db: Session = Depends(get_db)):

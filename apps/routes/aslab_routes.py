@@ -1,23 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from apps.service import auth_service
 from apps.models.aslab import Aslab
-from apps.models.user import User
-from apps.database import SessionLocal
 from apps.controllers.aslab_controller import *
-from apps.controllers import aslab_controller
 from apps.database import get_db
-from apps.helper import response
+from apps.helper.response import response
 
 router = APIRouter()
-
-@router.post("/login", response_model=str)
-async def login_for_access_token(form_data: auth_service.OAuth2PasswordBearer = Depends()):
-    try:
-        token = aslab_controller.login(form_data)
-        return response(status_code=200, success=True, msg="Login berhasil", data={"access_token": token})
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.post("/", response_model=dict)
 async def create_aslab_endpoint(aslab_data: dict, db: Session = Depends(get_db)):
@@ -27,10 +15,14 @@ async def create_aslab_endpoint(aslab_data: dict, db: Session = Depends(get_db))
     except HTTPException as e:
         return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.get("/{nim}", response_model=dict)
+@router.get("/{nim}", response_model=list)
 async def get_aslab_endpoint(nim: str, db: Session = Depends(get_db)):
     try:
-        aslab_detail = get_aslab(db, nim)
+        # aslab_detail = get_aslab(db, nim)
+        aslab_detail = {
+            'nama' : 'Wahyu Kesuma Bakti',
+            'nim'  : nim
+        }
         return response(status_code=200, success=True, msg="Data Aslab ditemukan", data=aslab_detail)
     except HTTPException as e:
         return response(status_code=e.status_code, success=False, msg=e.detail, data=None)

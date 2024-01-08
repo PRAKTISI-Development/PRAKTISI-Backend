@@ -14,7 +14,7 @@ class User(Base):
     password = Column(String)
     nama = Column(String)
     semester = Column(Integer)
-    tipe_user = List[UserType]  # Tambahkan parameter name
+    tipe_user = List[UserType] 
 
     praktikan = relationship("Praktikan", back_populates="user")
     aslab = relationship("Aslab", back_populates="user")

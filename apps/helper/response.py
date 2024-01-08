@@ -1,5 +1,3 @@
-import json
-
 def response(status_code: int, success: bool, msg: str, data):
     payload = [{
         'status_code' : status_code,
@@ -8,4 +6,4 @@ def response(status_code: int, success: bool, msg: str, data):
         'data'        : [data]
     }]
 
-    return json.dumps(payload, indent=2)
+    return payload
