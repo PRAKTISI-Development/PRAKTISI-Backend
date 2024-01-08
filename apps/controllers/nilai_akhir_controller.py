@@ -17,7 +17,7 @@ def get_nilai_akhir(db: Session, praktikan_nim: str, mata_kuliah_kode_matkul: st
 def get_nilai_akhirs(db: Session):
     return db.query(NilaiAkhir).all()
 
-def update_nilai_akhir(db: Session, praktikan_nim: str, mata_kuliah_kode_matkul: str, nilai_akhir_data: NilaiAkhirCreate):
+def update_nilai_akhir(db: Session, praktikan_nim: str, mata_kuliah_kode_matkul: str, nilai_akhir_data: NilaiAkhir):
     db_nilai_akhir = db.query(NilaiAkhir).filter(
         NilaiAkhir.praktikan_nim == praktikan_nim,
         NilaiAkhir.mata_kuliah_kode_matkul == mata_kuliah_kode_matkul

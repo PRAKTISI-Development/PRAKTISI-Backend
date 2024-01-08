@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from apps.services.praktikan_service import *
+from apps.controllers.praktikan_controller import *
 from apps.database import get_db
-from apps.helpers import response
+from apps.helper import response
 from apps.service.auth_service import OAuth2PasswordBearer
 
 router = APIRouter()

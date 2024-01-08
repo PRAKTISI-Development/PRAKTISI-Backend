@@ -9,7 +9,7 @@ from apps.helper import response
 router = APIRouter()
 
 @router.get("/", response_model=None)
-async def get_all_mata_kuliah(db: Session = Depends(get_db)):
+async def get_all_mata_kuliah(db: Session = Depends(get_db)) -> Any:
     try:
         all_mata_kuliah = mata_kuliah_controller.get_mata_kuliah(db)
         return response(status_code=200, success=True, msg="Data Mata Kuliah ditemukan", data=all_mata_kuliah)

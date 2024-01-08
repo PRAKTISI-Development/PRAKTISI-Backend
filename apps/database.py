@@ -8,17 +8,16 @@ import os
 load_dotenv()
 
 DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL, isolation_level='AUTOCOMMIT', pool_recycle=3600)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base: DeclarativeMeta = declarative_base()
 
 try:
-    engine = create_engine(DATABASE_URL, pool_recycle=1200, pool_timeout=30)
     engine.connect()
 except OperationalError as e:
     print(f"Error connecting to the database: {e}")
     raise SystemExit()
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base: DeclarativeMeta = declarative_base()
 
 def get_db():
     db = SessionLocal()

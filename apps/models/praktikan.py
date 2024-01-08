@@ -5,7 +5,7 @@ from apps.database import Base
 class Praktikan(Base):
     __tablename__ = "praktikan"
 
-    nim: str = Column(String, primary_key=True, index=True)
+    nim = Column(String, ForeignKey("user.nim"), primary_key=True, index=True)
 
-    user: str = relationship("User", back_populates="praktikan")
-    nilai_akhir: int = relationship("NilaiAkhir", back_populates="praktikan")
+    user = relationship("User", back_populates="praktikan")
+    nilai_akhir = relationship("NilaiAkhir", back_populates="praktikan")
