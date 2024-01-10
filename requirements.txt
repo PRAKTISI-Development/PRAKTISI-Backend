@@ -3,6 +3,6 @@ sqlalchemy
 uvicorn 
 python-dotenv 
 python-jose
-psycopg2
+mysql-connector-python
 passlib
 PyJWT
