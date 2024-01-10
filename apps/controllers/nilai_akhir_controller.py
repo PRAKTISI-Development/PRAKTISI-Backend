@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from apps.models.nilai_akhir import NilaiAkhir
 
 def create_nilai_akhir(db: Session, nilai_akhir_data: NilaiAkhir):
-    db_nilai_akhir = NilaiAkhir(**nilai_akhir_data.dict())
+    db_nilai_akhir = NilaiAkhir(**nilai_akhir_data)
     db.add(db_nilai_akhir)
     db.commit()
     db.refresh(db_nilai_akhir)
@@ -22,7 +22,7 @@ def update_nilai_akhir(db: Session, praktikan_nim: str, mata_kuliah_kode_matkul:
         NilaiAkhir.praktikan_nim == praktikan_nim,
         NilaiAkhir.mata_kuliah_kode_matkul == mata_kuliah_kode_matkul
     ).first()
-    for key, value in nilai_akhir_data.dict().items():
+    for key, value in nilai_akhir_data.items():
         setattr(db_nilai_akhir, key, value)
     db.commit()
     db.refresh(db_nilai_akhir)

@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from apps.models.user import User
 
 def create_user(db: Session, user_data: User):
-    db_user = User(**user_data.dict())
+    db_user = User(**user_data)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
@@ -16,7 +16,7 @@ def get_users(db: Session):
 
 def update_user(db: Session, nim: str, user_data: User):
     db_user = db.query(User).filter(User.nim == nim).first()
-    for key, value in user_data.dict().items():
+    for key, value in user_data.items():
         setattr(db_user, key, value)
     db.commit()
     db.refresh(db_user)

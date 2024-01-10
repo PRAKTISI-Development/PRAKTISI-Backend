@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from apps.models.tugas import Tugas
 
 def create_tugas(db: Session, tugas_data: Tugas):
-    db_tugas = Tugas(**tugas_data.dict())
+    db_tugas = Tugas(**tugas_data)
     db.add(db_tugas)
     db.commit()
     db.refresh(db_tugas)
@@ -16,7 +16,7 @@ def get_tugass(db: Session):
 
 def update_tugas(db: Session, kode_tugas: str, tugas_data: Tugas):
     db_tugas = db.query(Tugas).filter(Tugas.kode_tugas == kode_tugas).first()
-    for key, value in tugas_data.dict().items():
+    for key, value in tugas_data.items():
         setattr(db_tugas, key, value)
     db.commit()
     db.refresh(db_tugas)

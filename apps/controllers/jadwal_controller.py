@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from apps.models.jadwal import Jadwal
 
 def create_jadwal(db: Session, jadwal_data: Jadwal):
-    db_jadwal = Jadwal(**jadwal_data.dict())
+    db_jadwal = Jadwal(**jadwal_data)
     db.add(db_jadwal)
     db.commit()
     db.refresh(db_jadwal)
@@ -16,7 +16,7 @@ def get_jadwals(db: Session):
 
 def update_jadwal(db: Session, kode_jadwal: str, jadwal_data: Jadwal):
     db_jadwal = db.query(Jadwal).filter(Jadwal.kode_jadwal == kode_jadwal).first()
-    for key, value in jadwal_data.dict().items():
+    for key, value in jadwal_data.items():
         setattr(db_jadwal, key, value)
     db.commit()
     db.refresh(db_jadwal)

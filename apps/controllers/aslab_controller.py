@@ -4,7 +4,7 @@ from apps.models.user import User
 from apps.database import SessionLocal
 
 def create_aslab(db: Session, aslab_data: Aslab):
-    db_aslab = Aslab(**aslab_data.dict())
+    db_aslab = Aslab(**aslab_data)
     db.add(db_aslab)
     db.commit()
     db.refresh(db_aslab)
@@ -18,7 +18,7 @@ def get_aslabs(db: Session):
 
 def update_aslab(db: Session, nim: str, aslab_data: Aslab):
     db_aslab = db.query(Aslab).filter(Aslab.nim == nim).first()
-    for key, value in aslab_data.dict().items():
+    for key, value in aslab_data.items():
         setattr(db_aslab, key, value)
     db.commit()
     db.refresh(db_aslab)
