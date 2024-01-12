@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from apps.models.informasi import Informasi
+from apps.models.informasi import InformasiModel
 from apps.database import get_db
 from apps.controllers.informasi_controller import (
     create_informasi,
