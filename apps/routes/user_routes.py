@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from apps.controllers.user_controller import *
+from apps.controllers.users_controller import *
 from apps.database import get_db
 from apps.helper.response import response
-from apps.models.user import User
+from apps.models.users import User
 
 router = APIRouter()
 
@@ -17,9 +17,11 @@ async def create_user_endpoint(user_data: dict, db: Session = Depends(get_db)):
 @router.get('/{nim}')
 async def get_user_endpoint(nim: str, db: Session = Depends(get_db)):
     user_detail = get_user(db, nim)
-    if not user_detail:
-        raise HTTPException(status_code=401, detail="Data User Tidak Ada")
-    return response(status_code=200, success=True, msg="Data User ditemukan", data=user_detail)
+    if user_detail:
+        try:
+            return response(status_code=200, success=True, msg="Data User ditemukan", data=user_detail)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=[])  
 
 @router.get('/')
 async def get_users_endpoint(db: Session = Depends(get_db)):

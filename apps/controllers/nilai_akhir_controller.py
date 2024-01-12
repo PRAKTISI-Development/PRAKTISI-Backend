@@ -1,38 +1,33 @@
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from apps.models.nilai_akhir import NilaiAkhir
+from apps.models.nilai_akhir import NilaiAkhirModel
+from apps.database import get_db
+from apps.controllers.nilai_akhir_controller import (
+    create_nilai_akhir,
+    get_nilai_akhir,
+    get_all_nilai_akhir,
+    update_nilai_akhir,
+    delete_nilai_akhir,
+)
 
-def create_nilai_akhir(db: Session, nilai_akhir_data: NilaiAkhir):
-    db_nilai_akhir = NilaiAkhir(**nilai_akhir_data)
-    db.add(db_nilai_akhir)
-    db.commit()
-    db.refresh(db_nilai_akhir)
-    return db_nilai_akhir
+router = APIRouter()
 
-def get_nilai_akhir(db: Session, praktikan_nim: str, mata_kuliah_kode_matkul: str):
-    return db.query(NilaiAkhir).filter(
-        NilaiAkhir.praktikan_nim == praktikan_nim,
-        NilaiAkhir.mata_kuliah_kode_matkul == mata_kuliah_kode_matkul
-    ).first()
+@router.post("/nilai_akhir/", response_model=NilaiAkhirModel)
+def create_nilai_akhir_endpoint(nilai_akhir_data: NilaiAkhirModel, db: Session = Depends(get_db)):
+    return create_nilai_akhir(nilai_akhir_data, db)
 
-def get_nilai_akhirs(db: Session):
-    return db.query(NilaiAkhir).all()
+@router.get("/nilai_akhir/{usersid}/{kd_matkul}", response_model=NilaiAkhirModel)
+def read_nilai_akhir_endpoint(usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
+    return get_nilai_akhir(usersid, kd_matkul, db)
 
-def update_nilai_akhir(db: Session, praktikan_nim: str, mata_kuliah_kode_matkul: str, nilai_akhir_data: NilaiAkhir):
-    db_nilai_akhir = db.query(NilaiAkhir).filter(
-        NilaiAkhir.praktikan_nim == praktikan_nim,
-        NilaiAkhir.mata_kuliah_kode_matkul == mata_kuliah_kode_matkul
-    ).first()
-    for key, value in nilai_akhir_data.items():
-        setattr(db_nilai_akhir, key, value)
-    db.commit()
-    db.refresh(db_nilai_akhir)
-    return db_nilai_akhir
+@router.get("/nilai_akhir/", response_model=list[NilaiAkhirModel])
+def read_all_nilai_akhir_endpoint(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    return get_all_nilai_akhir(skip, limit, db)
 
-def delete_nilai_akhir(db: Session, praktikan_nim: str, mata_kuliah_kode_matkul: str):
-    db_nilai_akhir = db.query(NilaiAkhir).filter(
-        NilaiAkhir.praktikan_nim == praktikan_nim,
-        NilaiAkhir.mata_kuliah_kode_matkul == mata_kuliah_kode_matkul
-    ).first()
-    db.delete(db_nilai_akhir)
-    db.commit()
-    return {"message": "Nilai Akhir deleted successfully"}
+@router.put("/nilai_akhir/{usersid}/{kd_matkul}", response_model=NilaiAkhirModel)
+def update_nilai_akhir_endpoint(usersid: str, kd_matkul: str, nilai_akhir_data: NilaiAkhirModel, db: Session = Depends(get_db)):
+    return update_nilai_akhir(nilai_akhir_data, usersid, kd_matkul, db)
+
+@router.delete("/nilai_akhir/{usersid}/{kd_matkul}", response_model=dict)
+def delete_nilai_akhir_endpoint(usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
+    return delete_nilai_akhir(usersid, kd_matkul, db)
