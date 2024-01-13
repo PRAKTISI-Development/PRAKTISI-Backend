@@ -19,7 +19,7 @@ except OperationalError as e:
     print(f"Error connecting to the database: {e}")
     raise SystemExit()
 
-def get_db():
+async def get_db():
     db = SessionLocal()
     try:
         yield db
