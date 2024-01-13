@@ -1,33 +1,53 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from apps.models.informasi import InformasiModel
+from apps.models.informasi import Informasi as InformasiModel
 from apps.database import get_db
-from apps.controllers.informasi_controller import (
-    create_informasi,
-    get_informasi,
-    get_all_informasi,
-    update_informasi,
-    delete_informasi,
-)
+from apps.controllers.informasi_controller import *
+from apps.helper.response import response
 
 router = APIRouter()
 
-@router.post("/informasi/", response_model=InformasiModel)
+@router.post("/")
 def create_informasi_endpoint(informasi_data: InformasiModel, db: Session = Depends(get_db)):
-    return create_informasi(informasi_data, db)
+    informasi = create_informasi(informasi_data, db)
+    if informasi:
+        try:
+            return response(status_code=200, success=True, msg="Informasi berhasil ditambahkan", data=informasi)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.get("/informasi/{kd_informasi}", response_model=InformasiModel)
-def read_informasi_endpoint(kd_informasi: str, db: Session = Depends(get_db)):
-    return get_informasi(kd_informasi, db)
+@router.get("/{kd_informasi}", response_model=InformasiModel)
+async def read_informasi_endpoint(kd_informasi: str, db: Session = Depends(get_db)):
+    informasi = get_informasi(kd_informasi, db)
+    if informasi:
+        try:
+            return response(status_code=200, success=True, msg=f"Informasi {kd_informasi} ditemukan", data=informasi)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.get("/informasi/", response_model=list[InformasiModel])
-def read_all_informasi_endpoint(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_all_informasi(skip, limit, db)
+@router.get('/')
+async def read_all_informasi_endpoint(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
+    informasi = get_all_informasi(skip, limit, db)
+    if informasi:
+        try:
+            return response(status_code=200, success=True, msg="Informasi ditemukan", data=informasi)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.put("/informasi/{kd_informasi}", response_model=InformasiModel)
-def update_informasi_endpoint(kd_informasi: str, informasi_data: InformasiModel, db: Session = Depends(get_db)):
-    return update_informasi(informasi_data, kd_informasi, db)
-
-@router.delete("/informasi/{kd_informasi}", response_model=dict)
-def delete_informasi_endpoint(kd_informasi: str, db: Session = Depends(get_db)):
-    return delete_informasi(kd_informasi, db)
+@router.put("/{kd_informasi}")
+async def update_informasi_endpoint(kd_informasi: str, informasi_data: InformasiModel, db: Session = Depends(get_db)):
+    informasi = update_informasi(informasi_data, kd_informasi, db)
+    if informasi:
+        try:
+            return response(status_code=200, success=True, msg="Informasi berhasil diperbarui!", data=informasi)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+        
+@router.delete("/{kd_informasi}")
+async def delete_informasi_endpoint(kd_informasi: str, db: Session = Depends(get_db)):
+    informasi = delete_informasi(kd_informasi, db)
+    if informasi:
+        try:
+            return response(status_code=200, success=True, msg="Informasi berhasil dihapus!", data=informasi)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)

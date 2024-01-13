@@ -1,33 +1,53 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from apps.models.kehadiran import KehadiranModel
+from apps.models.kehadiran import Kehadiran as KehadiranModel
 from apps.database import get_db
-from apps.controllers import (
-    create_kehadiran,
-    get_kehadiran,
-    get_all_kehadiran,
-    update_kehadiran,
-    delete_kehadiran,
-)
+from apps.controllers.kehadiran_controller import *
+from apps.helper.response import response
 
 router = APIRouter()
 
-@router.post("/kehadiran/", response_model=KehadiranModel)
-def create_kehadiran_endpoint(kehadiran_data: KehadiranModel, db: Session = Depends(get_db)):
-    return create_kehadiran(kehadiran_data, db)
+@router.post("/")
+async def create_kehadiran_endpoint(kehadiran_data: KehadiranModel, db: Session = Depends(get_db)):
+    kehadiran = create_kehadiran(kehadiran_data, db)
+    if kehadiran:
+        try:
+            return response(status_code=200, success=True, msg="User dinyatakan hadir!", data=kehadiran)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.get("/kehadiran/{usersid}/{kd_matkul}/{pertemuan}", response_model=KehadiranModel)
-def read_kehadiran_endpoint(usersid: str, kd_matkul: str, pertemuan: int, db: Session = Depends(get_db)):
-    return get_kehadiran(usersid, kd_matkul, pertemuan, db)
+@router.get("/{usersid}/{kd_matkul}/{pertemuan}")
+async def read_kehadiran_endpoint(usersid: str, kd_matkul: str, pertemuan: int, db: Session = Depends(get_db)):
+    kehadiran = get_kehadiran(usersid, kd_matkul, pertemuan, db)
+    if kehadiran:
+        try:
+            return response(status_code=200, success=True, msg="Data kehadiran ditemukan!", data=kehadiran)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.get("/kehadiran/", response_model=list[KehadiranModel])
-def read_all_kehadiran_endpoint(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_all_kehadiran(skip, limit, db)
+@router.get("/")
+async def read_all_kehadiran_endpoint( db: Session = Depends(get_db) ):
+    kehadiran = get_all_kehadiran(db)
+    if kehadiran:
+        try:
+            return response(status_code=200, success=True, msg="Data kehadiran ditemukan!", data=kehadiran)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.put("/kehadiran/{usersid}/{kd_matkul}/{pertemuan}", response_model=KehadiranModel)
-def update_kehadiran_endpoint(usersid: str, kd_matkul: str, pertemuan: int, kehadiran_data: KehadiranModel, db: Session = Depends(get_db)):
-    return update_kehadiran(kehadiran_data, usersid, kd_matkul, pertemuan, db)
+@router.put("/{usersid}/{kd_matkul}/{pertemuan}")
+async def update_kehadiran_endpoint(usersid: str, kd_matkul: str, pertemuan: int, kehadiran_data: KehadiranModel, db: Session = Depends(get_db)):
+    kehadiran = update_kehadiran(kehadiran_data, usersid, kd_matkul, pertemuan, db)
+    if kehadiran:
+        try:
+            return response(status_code=200, success=True, msg="Data berhasil diperbarui!", data=kehadiran)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.delete("/kehadiran/{usersid}/{kd_matkul}/{pertemuan}", response_model=dict)
-def delete_kehadiran_endpoint(usersid: str, kd_matkul: str, pertemuan: int, db: Session = Depends(get_db)):
-    return delete_kehadiran(usersid, kd_matkul, pertemuan, db)
+@router.delete("/{usersid}/{kd_matkul}/{pertemuan}")
+async def delete_kehadiran_endpoint(usersid: str, kd_matkul: str, pertemuan: int, db: Session = Depends(get_db)):
+    kehadiran = delete_kehadiran(usersid, kd_matkul, pertemuan, db)
+    if kehadiran:
+        try:
+            return response(status_code=200, success=True, msg="Data berhasil dihapus!", data=kehadiran)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)

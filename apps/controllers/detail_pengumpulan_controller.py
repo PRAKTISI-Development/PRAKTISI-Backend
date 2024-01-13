@@ -2,6 +2,7 @@ from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.models.detail_pengumpulan import DetailPengumpulan as DetailPengumpulanModel
+from functools import lru_cache
 
 def create_detail_pengumpulan(detail_pengumpulan_data: DetailPengumpulanModel ,db: Session = Depends(get_db)):
     db_detail_pengumpulan = DetailPengumpulanModel(**detail_pengumpulan_data)
@@ -10,6 +11,7 @@ def create_detail_pengumpulan(detail_pengumpulan_data: DetailPengumpulanModel ,d
     db.refresh(db_detail_pengumpulan)
     return db_detail_pengumpulan
 
+@lru_cache
 def get_detail_pengumpulan(usersid: str, kd_tugas: str, db: Session = Depends(get_db)):
     detail_pengumpulan = db.query(DetailPengumpulanModel).filter(
         DetailPengumpulanModel.usersid == usersid,
@@ -21,8 +23,9 @@ def get_detail_pengumpulan(usersid: str, kd_tugas: str, db: Session = Depends(ge
     
     return detail_pengumpulan
 
-def get_all_detail_pengumpulan(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    detail_pengumpulan_list = db.query(DetailPengumpulanModel).offset(skip).limit(limit).all()
+@lru_cache
+def get_all_detail_pengumpulan(db: Session = Depends(get_db)):
+    detail_pengumpulan_list = db.query(DetailPengumpulanModel).all()
     return detail_pengumpulan_list
 
 def update_detail_pengumpulan(detail_pengumpulan_data: DetailPengumpulanModel, usersid: str, kd_tugas: str, db: Session = Depends(get_db)):

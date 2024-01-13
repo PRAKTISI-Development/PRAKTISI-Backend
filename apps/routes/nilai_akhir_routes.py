@@ -1,47 +1,54 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from apps.controllers.nilai_akhir_controller import *
+from apps.models.nilai_akhir import NilaiAkhir as NilaiAkhirModel
 from apps.database import get_db
+from apps.controllers.nilai_akhir_controller import *
 from apps.helper.response import response
 
 router = APIRouter()
 
-@router.post("/create", response_model=dict)
-async def create_nilai_akhir_endpoint(nilai_akhir_data: dict, db: Session = Depends(get_db)):
-    try:
-        new_nilai_akhir = create_nilai_akhir(db, nilai_akhir_data)
-        return response(status_code=201, success=True, msg="Nilai Akhir berhasil dibuat", data=new_nilai_akhir)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+@router.post("/")
+async def create_nilai_akhir_endpoint(nilai_akhir_data: NilaiAkhirModel, db: Session = Depends(get_db)):
+    nilai = create_nilai_akhir(nilai_akhir_data, db)
+    if nilai:
+        try:
+            return response(status_code=200, success=True, msg="Data berhasil ditambahkan!", data=nilai)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.get("/{praktikan_nim}/{mata_kuliah_kode_matkul}", response_model=dict)
-async def get_nilai_akhir_endpoint(praktikan_nim: str, mata_kuliah_kode_matkul: str, db: Session = Depends(get_db)):
-    try:
-        nilai_akhir_detail = get_nilai_akhir(db, praktikan_nim, mata_kuliah_kode_matkul)
-        return response(status_code=200, success=True, msg="Data Nilai Akhir ditemukan", data=nilai_akhir_detail)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.get("/", response_model=list)
-async def get_nilai_akhirs_endpoint(db: Session = Depends(get_db)):
-    try:
-        nilai_akhirs_list = get_nilai_akhirs(db)
-        return response(status_code=200, success=True, msg="Data Nilai Akhir ditemukan", data=nilai_akhirs_list)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+@router.get("/{usersid}/{kd_matkul}")
+async def read_nilai_akhir_endpoint(usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
+    nilai = get_nilai_akhir(usersid, kd_matkul, db)
+    if nilai:
+        try:
+            return response(status_code=200, success=True, msg="Data berhasil ditemukan!", data=nilai)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.put("/{praktikan_nim}/{mata_kuliah_kode_matkul}", response_model=dict)
-async def update_nilai_akhir_endpoint(praktikan_nim: str, mata_kuliah_kode_matkul: str, nilai_akhir_data: dict, db: Session = Depends(get_db)):
-    try:
-        updated_nilai_akhir = update_nilai_akhir(db, praktikan_nim, mata_kuliah_kode_matkul, nilai_akhir_data)
-        return response(status_code=200, success=True, msg="Data Nilai Akhir berhasil diperbarui", data=updated_nilai_akhir)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+@router.get("/")
+async def read_all_nilai_akhir_endpoint(db: Session = Depends(get_db)):
+    nilai = get_all_nilai_akhir(db)
+    if nilai:
+        try:
+            return response(status_code=200, success=True, msg="Data berhasil ditemukan!", data=nilai)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.delete("/{praktikan_nim}/{mata_kuliah_kode_matkul}", response_model=dict)
-async def delete_nilai_akhir_endpoint(praktikan_nim: str, mata_kuliah_kode_matkul: str, db: Session = Depends(get_db)):
-    try:
-        deleted_nilai_akhir = delete_nilai_akhir(db, praktikan_nim, mata_kuliah_kode_matkul)
-        return response(status_code=200, success=True, msg="Nilai Akhir berhasil dihapus", data=deleted_nilai_akhir)
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+@router.put("/{usersid}/{kd_matkul}")
+async def update_nilai_akhir_endpoint(usersid: str, kd_matkul: str, nilai_akhir_data: NilaiAkhirModel, db: Session = Depends(get_db)):
+    nilai = update_nilai_akhir(nilai_akhir_data, usersid, kd_matkul, db)
+    if nilai:
+        try:
+            return response(status_code=200, success=True, msg="Data berhasil diperbarui!", data=nilai)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+
+@router.delete("/{usersid}/{kd_matkul}")
+async def delete_nilai_akhir_endpoint(usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
+    nilai = delete_nilai_akhir(usersid, kd_matkul, db)
+    if nilai:
+        try:
+            return response(status_code=200, success=True, msg="Data berhasil dihapus!", data=nilai)
+        except HTTPException as e:
+            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)

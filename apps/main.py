@@ -1,7 +1,8 @@
 from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from apps.database import Base, engine
-from apps.routes import auth_routes, informasi_routes, jadwal_routes, kehadiran_routes, matkul_prak_routes, nilai_akhir_routes, tugas_routes, user_routes
+from apps.routes import detail_pengumpulan_routes, informasi_routes, jadwal_routes, kehadiran_routes, matkul_prak_routes, nilai_akhir_routes, tugas_routes, user_routes
 
 app = FastAPI(
     title="REST-SERVER PRAKTISI",
@@ -13,6 +14,10 @@ app = FastAPI(
     openapi_url="/openapi.json",
 )
 
+@app.get('/')
+async def root():
+    return RedirectResponse(url='/redocs')
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -22,11 +27,11 @@ app.add_middleware(
 
 Base.metadata.create_all(bind=engine)
 
-app.include_router(auth_routes.router, prefix="/auth", tags=["auth"])
-app.include_router(kehadiran_routes.router, prefix="/api/aslab", tags=["Aslab"])
-app.include_router(informasi_routes.router, prefix="/api/praktikan", tags=["Praktikan"])
-app.include_router(matkul_prak_routes.router, prefix="/api/mata_kuliah", tags=["Jadwal"])
-app.include_router(jadwal_routes.router, prefix="/api/jadwal", tags=["Jadwal"])
-app.include_router(nilai_akhir_routes.router, prefix="/api/nilai_akhir", tags=["Nilai Akhir"])
-app.include_router(tugas_routes.router, prefix="/api/tugas", tags=["Tugas"])
-app.include_router(user_routes.router, prefix="/api/user", tags=["User"])
+app.include_router(detail_pengumpulan_routes.router, prefix="/v1/detail_pengumpulan", tags=["Detail Pengumpulan"])
+app.include_router(kehadiran_routes.router, prefix="/v1/kehadiran", tags=["Kehadiran"])
+app.include_router(informasi_routes.router, prefix="/v1/praktikan", tags=["Informasi"])
+app.include_router(matkul_prak_routes.router, prefix="/v1/mata_kuliah", tags=["Mata Kuliah Praktikum"])
+app.include_router(jadwal_routes.router, prefix="/v1/jadwal", tags=["Jadwal"])
+app.include_router(nilai_akhir_routes.router, prefix="/v1/nilai_akhir", tags=["Nilai Akhir"])
+app.include_router(tugas_routes.router, prefix="/v1/tugas", tags=["Tugas"])
+app.include_router(user_routes.router, prefix="/v1/user", tags=["User"])
