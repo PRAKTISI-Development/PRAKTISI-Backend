@@ -12,6 +12,5 @@ class DetailPengumpulan(Base):
     file_tugas = Column(Text, nullable=False)
     nilai_tugas = Column(Integer, nullable=False)
 
-    # Gunakan Mapped[] untuk menentukan tipe relasi
     user = relationship("User", back_populates="detail_pengumpulan", uselist=False)
     tugas = relationship("Tugas", back_populates="detail_pengumpulan", uselist=False)
