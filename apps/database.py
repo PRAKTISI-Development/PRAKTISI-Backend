@@ -11,7 +11,7 @@ DATABASE_URL = os.getenv("DATABASE_URL")
 
 engine = create_engine(DATABASE_URL, pool_size=5, max_overflow=10, pool_recycle=3600)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base: DeclarativeMeta = declarative_base()
+Base = declarative_base()
 
 try:
     engine.connect()

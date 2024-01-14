@@ -1,14 +1,19 @@
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from apps.database import get_db
-from apps.models.users import User 
+from apps.models.users import *
+from apps.schemas.user_schema import UserSchema
 
 def create_user(user_data: User, db: Session = Depends(get_db)):
-    db_user = User(**user_data)
-    db.add(db_user)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+    try:
+        db_user = User(**user_data.dict())
+        db.add(db_user)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 def get_user(userid: str, db: Session = Depends(get_db)):
     user = db.query(User).filter(User.userid == userid).first()
@@ -24,18 +29,26 @@ def update_user(user_data: User, userid: str, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.userid == userid).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    
-    for key, value in user_data.items():
-        setattr(db_user, key, value)
-    db.commit()
-    db.refresh(db_user)
-    return db_user
+
+    try:
+        for key, value in user_data.dict(exclude_unset=True).items():
+            setattr(db_user, key, value)
+        db.commit()
+        db.refresh(db_user)
+        return db_user
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal Server Error")
 
 def delete_user(userid: str, db: Session = Depends(get_db)):
     db_user = db.query(User).filter(User.userid == userid).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    db.delete(db_user)
-    db.commit()
-    return {"message": "User deleted successfully"}
 
+    try:
+        db.delete(db_user)
+        db.commit()
+        return {"message": "User deleted successfully"}
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="Internal Server Error")

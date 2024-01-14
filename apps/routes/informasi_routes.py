@@ -7,7 +7,7 @@ from apps.helper.response import response
 
 router = APIRouter()
 
-@router.post("/")
+@router.post("/", response_model=None)
 def create_informasi_endpoint(informasi_data: InformasiModel, db: Session = Depends(get_db)):
     informasi = create_informasi(informasi_data, db)
     if informasi:

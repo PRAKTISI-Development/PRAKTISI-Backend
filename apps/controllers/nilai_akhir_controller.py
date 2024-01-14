@@ -1,14 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from apps.models.nilai_akhir import NilaiAkhirModel
+from apps.models.nilai_akhir import NilaiAkhir as NilaiAkhirModel
 from apps.database import get_db
-from apps.controllers.nilai_akhir_controller import (
-    create_nilai_akhir,
-    get_nilai_akhir,
-    get_all_nilai_akhir,
-    update_nilai_akhir,
-    delete_nilai_akhir,
-)
 
 router = APIRouter()
 

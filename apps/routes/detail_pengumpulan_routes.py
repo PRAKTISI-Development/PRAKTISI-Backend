@@ -7,7 +7,7 @@ from apps.helper.response import response
 
 router = APIRouter()
 
-@router.post("/")
+@router.post("/", response_model=None)
 async def create_detail_pengumpulan_endpoint(detail_pengumpulan_data: DetailPengumpulanModel, db: Session = Depends(get_db)):
     detail_pengumpulan = create_detail_pengumpulan(detail_pengumpulan_data, db)
     if detail_pengumpulan:
@@ -26,8 +26,8 @@ async def read_detail_pengumpulan_endpoint(usersid: str, kd_tugas: str, db: Sess
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.get("/")
-async def read_all_detail_pengumpulan_endpoint(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    detail_pengumpulan = get_all_detail_pengumpulan(skip, limit, db)
+async def read_all_detail_pengumpulan_endpoint(db: Session = Depends(get_db)):
+    detail_pengumpulan = get_all_detail_pengumpulan(db)
     if detail_pengumpulan:
         try:
             return response(status_code=200, success=True, msg="Data ditemukan!", data=detail_pengumpulan)
