@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from apps.models.jadwal import Jadwal
 from apps.database import get_db
 from apps.controllers.jadwal_controller import *
-from apps.helper.response import response
+from apps.helpers.response import response
 from apps.schemas.jadwal_schema import JadwalSchema
 
 router = APIRouter()
