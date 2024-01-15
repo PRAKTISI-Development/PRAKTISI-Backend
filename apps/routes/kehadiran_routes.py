@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from apps.models.kehadiran import Kehadiran as KehadiranModel
 from apps.database import get_db
 from apps.controllers.kehadiran_controller import *
 from apps.helper.response import response
+from apps.schemas.kehadiran_schema import KehadiranSchema
 
 router = APIRouter()
 
 @router.post("/")
-async def create_kehadiran_endpoint(kehadiran_data: KehadiranModel, db: Session = Depends(get_db)):
+async def create_kehadiran_endpoint(kehadiran_data: KehadiranSchema, db: Session = Depends(get_db)):
     kehadiran = create_kehadiran(kehadiran_data, db)
     if kehadiran:
         try:
@@ -35,7 +35,7 @@ async def read_all_kehadiran_endpoint( db: Session = Depends(get_db) ):
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.put("/{usersid}/{kd_matkul}/{pertemuan}")
-async def update_kehadiran_endpoint(usersid: str, kd_matkul: str, pertemuan: int, kehadiran_data: KehadiranModel, db: Session = Depends(get_db)):
+async def update_kehadiran_endpoint(usersid: str, kd_matkul: str, pertemuan: int, kehadiran_data: KehadiranSchema, db: Session = Depends(get_db)):
     kehadiran = update_kehadiran(kehadiran_data, usersid, kd_matkul, pertemuan, db)
     if kehadiran:
         try:

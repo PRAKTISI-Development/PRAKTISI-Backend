@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from apps.models.detail_pengumpulan import DetailPengumpulan as DetailPengumpulanModel
 from apps.database import get_db
 from apps.controllers.detail_pengumpulan_controller import *
 from apps.helper.response import response
+from apps.schemas.detail_pengumpulan_schema import DetailPengumpulanSchema
 
 router = APIRouter()
 
-@router.post("/", response_model=None)
-async def create_detail_pengumpulan_endpoint(detail_pengumpulan_data: DetailPengumpulanModel, db: Session = Depends(get_db)):
+@router.post("/", response_model=DetailPengumpulanSchema)
+async def create_detail_pengumpulan_endpoint(detail_pengumpulan_data: DetailPengumpulanSchema, db: Session = Depends(get_db)):
     detail_pengumpulan = create_detail_pengumpulan(detail_pengumpulan_data, db)
     if detail_pengumpulan:
         try:
@@ -35,7 +35,7 @@ async def read_all_detail_pengumpulan_endpoint(db: Session = Depends(get_db)):
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.put("/{usersid}/{kd_tugas}")
-async def update_detail_pengumpulan_endpoint(usersid: str, kd_tugas: str, detail_pengumpulan_data: DetailPengumpulanModel, db: Session = Depends(get_db)):
+async def update_detail_pengumpulan_endpoint(usersid: str, kd_tugas: str, detail_pengumpulan_data: DetailPengumpulanSchema, db: Session = Depends(get_db)):
     detail_pengumpulan = update_detail_pengumpulan(detail_pengumpulan_data, usersid, kd_tugas, db)
     if detail_pengumpulan:
         try:

@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from apps.models.informasi import Informasi as InformasiModel
 from apps.database import get_db
 from apps.controllers.informasi_controller import *
 from apps.helper.response import response
+from apps.schemas.informasi_schema import InformasiSchema
 
 router = APIRouter()
 
-@router.post("/", response_model=None)
-def create_informasi_endpoint(informasi_data: InformasiModel, db: Session = Depends(get_db)):
+@router.post("/", response_model=InformasiSchema)
+def create_informasi_endpoint(informasi_data: InformasiSchema, db: Session = Depends(get_db)):
     informasi = create_informasi(informasi_data, db)
     if informasi:
         try:
@@ -16,7 +16,7 @@ def create_informasi_endpoint(informasi_data: InformasiModel, db: Session = Depe
         except HTTPException as e:
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.get("/{kd_informasi}", response_model=InformasiModel)
+@router.get("/{kd_informasi}", response_model=InformasiSchema)
 async def read_informasi_endpoint(kd_informasi: str, db: Session = Depends(get_db)):
     informasi = get_informasi(kd_informasi, db)
     if informasi:
@@ -35,7 +35,7 @@ async def read_all_informasi_endpoint(skip: int = 0, limit: int = 10, db: Sessio
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.put("/{kd_informasi}")
-async def update_informasi_endpoint(kd_informasi: str, informasi_data: InformasiModel, db: Session = Depends(get_db)):
+async def update_informasi_endpoint(kd_informasi: str, informasi_data: InformasiSchema, db: Session = Depends(get_db)):
     informasi = update_informasi(informasi_data, kd_informasi, db)
     if informasi:
         try:

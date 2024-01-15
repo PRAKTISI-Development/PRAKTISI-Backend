@@ -1,14 +1,15 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from apps.models.tugas import Tugas
 from apps.database import get_db
 from apps.controllers.tugas_controller import *
 from apps.helper.response import response
+from apps.schemas.tugas_schema import TugasSchema
+
 
 router = APIRouter()
 
 @router.post("/")
-async def create_tugas_endpoint(tugas_data: Tugas, db: Session = Depends(get_db)):
+async def create_tugas_endpoint(tugas_data: TugasSchema, db: Session = Depends(get_db)):
     tugas = create_tugas(tugas_data, db)
     if tugas:
         try:
@@ -36,7 +37,7 @@ async def read_all_tugas_endpoint( db: Session = Depends(get_db)):
 
 
 @router.put("/{kd_tugas}")
-async def update_tugas_endpoint(kd_tugas: str, tugas_data: Tugas, db: Session = Depends(get_db)):
+async def update_tugas_endpoint(kd_tugas: str, tugas_data: TugasSchema, db: Session = Depends(get_db)):
     tugas = update_tugas(tugas_data, kd_tugas, db)
     if tugas:
         try:

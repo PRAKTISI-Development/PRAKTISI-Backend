@@ -4,11 +4,12 @@ from apps.models.jadwal import Jadwal
 from apps.database import get_db
 from apps.controllers.jadwal_controller import *
 from apps.helper.response import response
+from apps.schemas.jadwal_schema import JadwalSchema
 
 router = APIRouter()
 
-@router.post("/")
-async def create_jadwal_endpoint(jadwal_data: Jadwal, db: Session = Depends(get_db)):
+@router.post("/", response_model=JadwalSchema)
+async def create_jadwal_endpoint(jadwal_data: JadwalSchema, db: Session = Depends(get_db)):
     jadwal = create_jadwal(jadwal_data, db)
     if jadwal:
         try:
@@ -35,7 +36,7 @@ async def read_all_jadwal_endpoint(db: Session = Depends(get_db)):
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.put("/{kd_jadwal}")
-def update_jadwal_endpoint(kd_jadwal: str, jadwal_data: Jadwal, db: Session = Depends(get_db)):
+def update_jadwal_endpoint(kd_jadwal: str, jadwal_data: JadwalSchema, db: Session = Depends(get_db)):
     jadwal = update_jadwal(jadwal_data, kd_jadwal, db)
     if jadwal:
         try:

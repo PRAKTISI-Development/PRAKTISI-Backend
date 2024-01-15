@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from apps.models.nilai_akhir import NilaiAkhir as NilaiAkhirModel
 from apps.database import get_db
 from apps.controllers.nilai_akhir_controller import *
 from apps.helper.response import response
+from apps.schemas.nilai_akhir_schema import NilaiAkhirSchema
 
 router = APIRouter()
 
 @router.post("/")
-async def create_nilai_akhir_endpoint(nilai_akhir_data: NilaiAkhirModel, db: Session = Depends(get_db)):
+async def create_nilai_akhir_endpoint(nilai_akhir_data: NilaiAkhirSchema, db: Session = Depends(get_db)):
     nilai = create_nilai_akhir(nilai_akhir_data, db)
     if nilai:
         try:
@@ -36,7 +36,7 @@ async def read_all_nilai_akhir_endpoint(db: Session = Depends(get_db)):
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.put("/{usersid}/{kd_matkul}")
-async def update_nilai_akhir_endpoint(usersid: str, kd_matkul: str, nilai_akhir_data: NilaiAkhirModel, db: Session = Depends(get_db)):
+async def update_nilai_akhir_endpoint(usersid: str, kd_matkul: str, nilai_akhir_data: NilaiAkhirSchema, db: Session = Depends(get_db)):
     nilai = update_nilai_akhir(nilai_akhir_data, usersid, kd_matkul, db)
     if nilai:
         try:

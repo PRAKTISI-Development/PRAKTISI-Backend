@@ -1,14 +1,14 @@
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
-from apps.models.users import *
 from apps.database import get_db
 from apps.controllers.users_controller import *
 from apps.helper.response import response
+from apps.schemas.user_schema import UserSchema
 
 router = APIRouter()
 
 @router.post("/", response_model=None)
-async def create_user_endpoint(user_data: User, db: Session = Depends(get_db)):
+async def create_user_endpoint(user_data: UserSchema, db: Session = Depends(get_db)):
     user = create_user(user_data, db)
     if user:
         try:
@@ -35,7 +35,7 @@ async def read_all_users_endpoint(skip: int = 0, limit: int = 10, db: Session = 
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.put("/{userid}", response_model=None)
-async def update_user_endpoint(userid: str, user_data: User, db: Session = Depends(get_db)):
+async def update_user_endpoint(userid: str, user_data: UserSchema, db: Session = Depends(get_db)):
     user = update_user(user_data, userid, db)
     if user:
         try:
