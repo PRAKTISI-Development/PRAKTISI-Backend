@@ -20,7 +20,7 @@ def file_validation(file: UploadFile):
         raise HTTPException(
             status_code=400,
             detail='Gagal membaca file.',
-        ) from e
+        ) 
 
     if len(file_content) > MAX_FILE_SIZE_BYTES:
         raise HTTPException(

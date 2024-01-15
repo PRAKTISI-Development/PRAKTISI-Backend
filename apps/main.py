@@ -2,13 +2,14 @@ from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from apps.database import Base, engine
+from apps.models import detail_pengumpulan, informasi, jadwal, kehadiran, matkul_prak, nilai_akhir, tugas, users as models
 from apps.routes import detail_pengumpulan_routes, informasi_routes, jadwal_routes, kehadiran_routes, matkul_prak_routes, nilai_akhir_routes, tugas_routes, user_routes
 
 app = FastAPI(
-    title="REST-SERVER PRAKTISI",
+    title="REST API PRAKTISI",
     debug=True,
     version="1.0.0",
-    description="PRAKTISI BACKEND APP",
+    description="PRAKTISI Backend Web Application",
     docs_url="/api_docs",
     redoc_url="/redocs",
     openapi_url="/openapi.json",
@@ -25,7 +26,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-Base.metadata.create_all(bind=engine)
+models.Base.metadata.create_all(bind=engine)
 
 app.include_router(detail_pengumpulan_routes.router, prefix="/v1/detail_pengumpulan", tags=["Detail Pengumpulan"])
 app.include_router(kehadiran_routes.router, prefix="/v1/kehadiran", tags=["Kehadiran"])

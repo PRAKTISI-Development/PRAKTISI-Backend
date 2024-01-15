@@ -1,26 +1,54 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
-from apps.models.nilai_akhir import NilaiAkhir as NilaiAkhirModel
 from apps.database import get_db
+from apps.models.nilai_akhir import NilaiAkhir as NilaiAkhirModel
 
-router = APIRouter()
+def create_nilai_akhir(nilai_akhir_data: NilaiAkhirModel, db: Session = Depends(get_db)):
+    db_nilai_akhir = NilaiAkhirModel(**nilai_akhir_data)
+    db.add(db_nilai_akhir)
+    db.commit()
+    db.refresh(db_nilai_akhir)
+    return db_nilai_akhir
 
-@router.post("/nilai_akhir/", response_model=NilaiAkhirModel)
-def create_nilai_akhir_endpoint(nilai_akhir_data: NilaiAkhirModel, db: Session = Depends(get_db)):
-    return create_nilai_akhir(nilai_akhir_data, db)
+def get_nilai_akhir(usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
+    nilai_akhir = db.query(NilaiAkhirModel).filter(
+        NilaiAkhirModel.usersid == usersid,
+        NilaiAkhirModel.kd_matkul == kd_matkul
+    ).first()
+    
+    if nilai_akhir is None:
+        raise HTTPException(status_code=404, detail="Nilai Akhir not found")
+    
+    return nilai_akhir
 
-@router.get("/nilai_akhir/{usersid}/{kd_matkul}", response_model=NilaiAkhirModel)
-def read_nilai_akhir_endpoint(usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
-    return get_nilai_akhir(usersid, kd_matkul, db)
+def get_all_nilai_akhir(db: Session = Depends(get_db)):
+    nilai_akhir_list = db.query(NilaiAkhirModel).all()
+    return nilai_akhir_list
 
-@router.get("/nilai_akhir/", response_model=list[NilaiAkhirModel])
-def read_all_nilai_akhir_endpoint(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    return get_all_nilai_akhir(skip, limit, db)
+def update_nilai_akhir(nilai_akhir_data: NilaiAkhirModel, usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
+    db_nilai_akhir = db.query(NilaiAkhirModel).filter(
+        NilaiAkhirModel.usersid == usersid,
+        NilaiAkhirModel.kd_matkul == kd_matkul
+    ).first()
+    
+    if db_nilai_akhir is None:
+        raise HTTPException(status_code=404, detail="Nilai Akhir not found")
+    
+    for key, value in nilai_akhir_data.dict().items():
+        setattr(db_nilai_akhir, key, value)
+    
+    db.commit()
+    db.refresh(db_nilai_akhir)
+    return db_nilai_akhir
 
-@router.put("/nilai_akhir/{usersid}/{kd_matkul}", response_model=NilaiAkhirModel)
-def update_nilai_akhir_endpoint(usersid: str, kd_matkul: str, nilai_akhir_data: NilaiAkhirModel, db: Session = Depends(get_db)):
-    return update_nilai_akhir(nilai_akhir_data, usersid, kd_matkul, db)
+def delete_nilai_akhir(usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
+    db_nilai_akhir = db.query(NilaiAkhirModel).filter(
+        NilaiAkhirModel.usersid == usersid,
+        NilaiAkhirModel.kd_matkul == kd_matkul
+    ).first()
+    
+    if db_nilai_akhir is None:
+        raise HTTPException(status_code=404, detail="Nilai Akhir not found")
 
-@router.delete("/nilai_akhir/{usersid}/{kd_matkul}", response_model=dict)
-def delete_nilai_akhir_endpoint(usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
-    return delete_nilai_akhir(usersid, kd_matkul, db)
+    db.delete(db_nilai_akhir)
+    db.commit()
