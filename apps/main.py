@@ -1,9 +1,13 @@
-from fastapi import FastAPI
-from fastapi.responses import RedirectResponse
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps.database import Base, engine
+from apps.database import engine
 from apps.models import detail_pengumpulan, informasi, jadwal, kehadiran, matkul_prak, nilai_akhir, tugas, users as models
 from apps.routes import detail_pengumpulan_routes, informasi_routes, jadwal_routes, kehadiran_routes, matkul_prak_routes, nilai_akhir_routes, tugas_routes, user_routes
+from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
+
+templates = Jinja2Templates(directory="apps/templates")
 
 app = FastAPI(
     title="REST API PRAKTISI",
@@ -15,10 +19,6 @@ app = FastAPI(
     openapi_url="/openapi.json",
 )
 
-@app.get('/')
-async def root():
-    return RedirectResponse(url='/redocs')
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],  
@@ -26,8 +26,22 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-models.Base.metadata.create_all(bind=engine)
+app.mount("/public", StaticFiles(directory="apps/public"), name="public")
+app.mount("/404", StaticFiles(directory="apps/templates"), name="404")
 
+@app.get("/redocs", response_class=HTMLResponse)
+async def redocs():
+    return await HTMLResponse(content="This is your Redoc page.")
+
+@app.get('/')
+async def root():
+    return RedirectResponse(url='/redocs')
+
+@app.exception_handler(404)
+async def not_found_exception_handler(request, exc):
+    return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
+
+models.Base.metadata.create_all(bind=engine)
 app.include_router(detail_pengumpulan_routes.router, prefix="/v1/detail_pengumpulan", tags=["Detail Pengumpulan"])
 app.include_router(kehadiran_routes.router, prefix="/v1/kehadiran", tags=["Kehadiran"])
 app.include_router(informasi_routes.router, prefix="/v1/informasi", tags=["Informasi"])

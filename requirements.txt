@@ -7,4 +7,5 @@ mysql-connector-python
 passlib
 PyJWT
 pymysql
+jinja2
 
