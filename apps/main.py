@@ -30,7 +30,7 @@ models.Base.metadata.create_all(bind=engine)
 
 app.include_router(detail_pengumpulan_routes.router, prefix="/v1/detail_pengumpulan", tags=["Detail Pengumpulan"])
 app.include_router(kehadiran_routes.router, prefix="/v1/kehadiran", tags=["Kehadiran"])
-app.include_router(informasi_routes.router, prefix="/v1/praktikan", tags=["Informasi"])
+app.include_router(informasi_routes.router, prefix="/v1/informasi", tags=["Informasi"])
 app.include_router(matkul_prak_routes.router, prefix="/v1/mata_kuliah", tags=["Mata Kuliah Praktikum"])
 app.include_router(jadwal_routes.router, prefix="/v1/jadwal", tags=["Jadwal"])
 app.include_router(nilai_akhir_routes.router, prefix="/v1/nilai_akhir", tags=["Nilai Akhir"])

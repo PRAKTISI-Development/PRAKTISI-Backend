@@ -18,8 +18,8 @@ def get_informasi(kd_informasi: str, db: Session = Depends(get_db)):
     
     return informasi
 
-def get_all_informasi(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    informasi_list = db.query(InformasiModel).offset(skip).limit(limit).all()
+def get_all_informasi(db: Session = Depends(get_db)):
+    informasi_list = db.query(InformasiModel).all()
     return informasi_list
 
 def update_informasi(informasi_data: InformasiModel, kd_informasi: str, db: Session = Depends(get_db)):

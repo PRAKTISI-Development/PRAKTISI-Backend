@@ -26,8 +26,8 @@ async def read_informasi_endpoint(kd_informasi: str, db: Session = Depends(get_d
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.get('/')
-async def read_all_informasi_endpoint(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    informasi = get_all_informasi(skip, limit, db)
+async def read_all_informasi_endpoint(db: Session = Depends(get_db)):
+    informasi = get_all_informasi(db)
     if informasi:
         try:
             return response(status_code=200, success=True, msg="Informasi ditemukan", data=informasi)

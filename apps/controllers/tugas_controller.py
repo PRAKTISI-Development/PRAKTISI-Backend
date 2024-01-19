@@ -11,13 +11,13 @@ def create_tugas(tugas_data: Tugas, db: Session = Depends(get_db)):
     return db_tugas
 
 def get_tugas(kd_tugas: str, db: Session = Depends(get_db)):
-    tugas = db.query(Tugas).filter(Tugas.kd_tugas == kd_tugas).first()
+    tugas = db.query(Tugas).filter(Tugas.kd_tugas == kd_tugas)
     if tugas is None:
         raise HTTPException(status_code=404, detail="Tugas not found")
     return tugas
 
-def get_all_tugas(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    tugas_list = db.query(Tugas).offset(skip).limit(limit).all()
+def get_all_tugas(db: Session = Depends(get_db)):
+    tugas_list = db.query(Tugas).all()
     return tugas_list
 
 def update_tugas(tugas_data: Tugas, kd_tugas: str, db: Session = Depends(get_db)):

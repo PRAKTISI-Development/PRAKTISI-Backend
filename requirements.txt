@@ -6,3 +6,5 @@ python-jose
 mysql-connector-python
 passlib
 PyJWT
+pymysql
+

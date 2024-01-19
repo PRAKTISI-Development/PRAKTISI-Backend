@@ -22,8 +22,8 @@ def get_kehadiran(usersid: str, kd_matkul: str, pertemuan: int, db: Session = De
     
     return kehadiran
 
-def get_all_kehadiran(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    kehadiran_list = db.query(KehadiranModel).offset(skip).limit(limit).all()
+def get_all_kehadiran(db: Session = Depends(get_db)):
+    kehadiran_list = db.query(KehadiranModel).all()
     return kehadiran_list
 
 def update_kehadiran(kehadiran_data: KehadiranModel, usersid: str, kd_matkul: str, pertemuan: int, db: Session = Depends(get_db)):

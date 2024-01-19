@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
-from apps.helpers.validation import file_validation
+from apps.middleware.validation import file_validation
 
 router = APIRouter()
 
