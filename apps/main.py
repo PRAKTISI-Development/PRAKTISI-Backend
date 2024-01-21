@@ -1,9 +1,8 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.responses import RedirectResponse, HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
-from apps.database import engine
-from apps.models import detail_pengumpulan, informasi, jadwal, kehadiran, matkul_prak, nilai_akhir, tugas, users as models
-from apps.routes import detail_pengumpulan_routes, informasi_routes, jadwal_routes, kehadiran_routes, matkul_prak_routes, nilai_akhir_routes, tugas_routes, user_routes
+from apps.database import Base, engine
+from apps.routes import *
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
@@ -39,9 +38,10 @@ async def root():
 
 @app.exception_handler(404)
 async def not_found_exception_handler(request, exc):
-    return templates.TemplateResponse("404.html", {"request": request}, status_code=404)
+    data = {"detail": "not found"}
+    return templates.TemplateResponse("404.html", {"request": request, "data" : data}, status_code=404)
 
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 app.include_router(detail_pengumpulan_routes.router, prefix="/v1/detail_pengumpulan", tags=["Detail Pengumpulan"])
 app.include_router(kehadiran_routes.router, prefix="/v1/kehadiran", tags=["Kehadiran"])
 app.include_router(informasi_routes.router, prefix="/v1/informasi", tags=["Informasi"])

@@ -13,6 +13,8 @@ class Tugas(Base):
     tanggal_pengumpulan = Column(DateTime, nullable=False)
     kd_matkul = Column(String(length=10), ForeignKey('matkul_prak.kd_matkul'))
 
-    user = relationship('MatkulPrak', back_populates='tugas')
-    matkul_prak = relationship('MatkulPrak', back_populates='tugas')  
+    user = relationship('MatkulPrak', back_populates='tugas')   
+
+    matkul_prak = relationship('MatkulPrak', back_populates='tugas', foreign_keys=[kd_matkul])
     detail_pengumpulan = relationship('DetailPengumpulan', back_populates='tugas')
+

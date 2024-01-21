@@ -14,10 +14,22 @@ class Kehadiran(Base):
     
     # Define the direct foreign key relationship
     matkul_prak_kd_matkul = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"))
-    
-    # Define the relationship with the MatkulPrak model
-    matkul_prak = relationship("MatkulPrak", foreign_keys=[matkul_prak_kd_matkul], back_populates="kehadiran")
 
-    # Define other relationships
-    user = relationship("User", back_populates="kehadiran")
+    # Define the relationship with the MatkulPrak model
+    matkul_prak = relationship(
+        "MatkulPrak",
+        back_populates="kehadiran",
+        primaryjoin="Kehadiran.matkul_prak_kd_matkul == MatkulPrak.kd_matkul",
+        foreign_keys=[matkul_prak_kd_matkul]
+    )
+
+    # Define the relationship with the User model
+    user = relationship(
+        "User",
+        back_populates="kehadiran",
+        primaryjoin="Kehadiran.usersid == User.userid",
+        foreign_keys=[usersid]
+    )
+
+    # Define the relationship with the Jadwal model
     jadwal = relationship("Jadwal", back_populates="kehadiran")

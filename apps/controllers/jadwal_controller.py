@@ -16,8 +16,8 @@ def get_jadwal(kd_jadwal: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Jadwal not found")
     return jadwal
 
-def get_all_jadwal(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    jadwals = db.query(Jadwal).offset(skip).limit(limit).all()
+def get_all_jadwal(db: Session = Depends(get_db)):
+    jadwals = db.query(Jadwal).all()
     return jadwals
 
 def update_jadwal(jadwal_data: Jadwal, kd_jadwal: str, db: Session = Depends(get_db)):
