@@ -11,17 +11,17 @@ class Kehadiran(Base):
     materi = Column(String(length=100), nullable=False)
     tanggal = Column(DateTime, nullable=False)
     keterangan = Column(Enum('Hadir', 'Tidak Hadir'), nullable=False)
-    
-    # Define the direct foreign key relationship
-    matkul_prak_kd_matkul = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"))
 
-    # Define the relationship with the MatkulPrak model
-    matkul_prak = relationship(
-        "MatkulPrak",
-        back_populates="kehadiran",
-        primaryjoin="Kehadiran.matkul_prak_kd_matkul == MatkulPrak.kd_matkul",
-        foreign_keys=[matkul_prak_kd_matkul]
-    )
+    # Define the direct foreign key relationship
+    # matkul_prak_kd_matkul = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"))
+
+    # # Define the relationship with the MatkulPrak model
+    # matkul_prak = relationship(
+    #     "MatkulPrak",
+    #     back_populates="kehadiran",
+    #     primaryjoin="Jadwal.matkul_prak_kd_matkul == Jadwal.kd_matkul",
+    #     foreign_keys=[matkul_prak_kd_matkul]
+    # )
 
     # Define the relationship with the User model
     user = relationship(

@@ -1,6 +1,7 @@
 from sqlalchemy import Column, String, ForeignKey
 from sqlalchemy.orm import relationship
 from apps.database import Base
+from apps.models.kehadiran import Kehadiran
 
 class MatkulPrak(Base):
     __tablename__ = "matkul_prak"
@@ -11,6 +12,6 @@ class MatkulPrak(Base):
 
     user = relationship("User", back_populates="matkul_prak", foreign_keys=[usersid], remote_side="User.userid")
     jadwal = relationship("Jadwal", back_populates="matkul_prak")
-    kehadiran = relationship("Kehadiran", back_populates="matkul_prak")
+    # kehadiran = relationship("Kehadiran", back_populates="matkul_prak", foreign_keys=[Kehadiran.matkul_prak_kd_matkul])
     nilai_akhir = relationship("NilaiAkhir", back_populates="matkul_prak")
     tugas = relationship("Tugas", back_populates="matkul_prak")

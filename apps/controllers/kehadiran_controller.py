@@ -13,7 +13,7 @@ def create_kehadiran(kehadiran_data: KehadiranModel, db: Session = Depends(get_d
 def get_kehadiran(usersid: str, kd_matkul: str, pertemuan: int, db: Session = Depends(get_db)):
     kehadiran = db.query(KehadiranModel).filter(
         KehadiranModel.usersid == usersid,
-        KehadiranModel.kd_matkul == kd_matkul,
+        # KehadiranModel.matkul_prak_kd_matkul == kd_matkul,
         KehadiranModel.pertemuan == pertemuan
     ).first()
     
@@ -23,13 +23,14 @@ def get_kehadiran(usersid: str, kd_matkul: str, pertemuan: int, db: Session = De
     return kehadiran
 
 def get_all_kehadiran(db: Session = Depends(get_db)):
+    query = "SELE"
     kehadiran_list = db.query(KehadiranModel).all()
     return kehadiran_list
 
 def update_kehadiran(kehadiran_data: KehadiranModel, usersid: str, kd_matkul: str, pertemuan: int, db: Session = Depends(get_db)):
     db_kehadiran = db.query(KehadiranModel).filter(
         KehadiranModel.usersid == usersid,
-        KehadiranModel.kd_matkul == kd_matkul,
+        # KehadiranModel.matkul_prak_kd_matkul == kd_matkul,
         KehadiranModel.pertemuan == pertemuan
     ).first()
     
@@ -46,7 +47,7 @@ def update_kehadiran(kehadiran_data: KehadiranModel, usersid: str, kd_matkul: st
 def delete_kehadiran(usersid: str, kd_matkul: str, pertemuan: int, db: Session = Depends(get_db)):
     db_kehadiran = db.query(KehadiranModel).filter(
         KehadiranModel.usersid == usersid,
-        KehadiranModel.kd_matkul == kd_matkul,
+        # KehadiranModel.kd_matkul == kd_matkul,
         KehadiranModel.pertemuan == pertemuan
     ).first()
     

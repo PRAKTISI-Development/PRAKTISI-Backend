@@ -19,8 +19,8 @@ def get_matkul_prak(kd_matkul: str, db: Session = Depends(get_db)):
     
     return matkul_prak
 
-def get_all_matkul_prak(skip: int = 0, limit: int = 10, db: Session = Depends(get_db)):
-    matkul_prak_list = db.query(MatkulPrakModel).offset(skip).limit(limit).all()
+def get_all_matkul_prak(db: Session = Depends(get_db)):
+    matkul_prak_list = db.query(MatkulPrakModel).all()
     return matkul_prak_list
 
 def update_matkul_prak(matkul_prak_data: MatkulPrakModel, kd_matkul: str, db: Session = Depends(get_db)):

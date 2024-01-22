@@ -15,3 +15,4 @@ class Jadwal(Base):
 
     matkul_prak = relationship("MatkulPrak", back_populates="jadwal")
     kehadiran = relationship("Kehadiran", back_populates="jadwal")
+
