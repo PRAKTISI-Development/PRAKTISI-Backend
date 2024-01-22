@@ -28,7 +28,7 @@ async def read_tugas_endpoint(kd_tugas: str, db: Session = Depends(get_db)):
 
 @router.get("/")
 async def read_all_tugas_endpoint( db: Session = Depends(get_db)):
-    tugas = get_tugas(db)
+    tugas = get_all_tugas(db)
     if tugas:
         try:
             return response(status_code=200, success=True, msg="Data berhasil ditemukan!", data=tugas)

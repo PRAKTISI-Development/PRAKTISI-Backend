@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class KehadiranSchema(BaseModel):
     usersid: str
-    kd_matkul: str
+    kd_jadwal: str
     pertemuan: int
     materi: str
     tanggal: datetime

@@ -39,7 +39,7 @@ async def update_detail_pengumpulan_endpoint(usersid: str, kd_tugas: str, detail
     detail_pengumpulan = update_detail_pengumpulan(detail_pengumpulan_data, usersid, kd_tugas, db)
     if detail_pengumpulan:
         try:
-            return response(status_code=200, success=True, msg="Data ditemukan!", data=detail_pengumpulan)
+            return response(status_code=200, success=True, msg="Data berhasil diperbarui!", data=detail_pengumpulan)
         except HTTPException as e:
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 

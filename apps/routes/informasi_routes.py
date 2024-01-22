@@ -11,12 +11,13 @@ router = APIRouter()
 def create_informasi_endpoint(informasi_data: InformasiSchema, db: Session = Depends(get_db)):
     informasi = create_informasi(informasi_data, db)
     if informasi:
+        print(informasi)
         try:
             return response(status_code=200, success=True, msg="Informasi berhasil ditambahkan", data=informasi)
         except HTTPException as e:
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-@router.get("/{kd_informasi}", response_model=InformasiSchema)
+@router.get("/{kd_informasi}", response_model=None)
 async def read_informasi_endpoint(kd_informasi: str, db: Session = Depends(get_db)):
     informasi = get_informasi(kd_informasi, db)
     if informasi:
