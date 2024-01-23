@@ -8,4 +8,5 @@ passlib
 PyJWT
 pymysql
 jinja2
+mysql-client
 

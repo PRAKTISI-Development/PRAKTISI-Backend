@@ -92,7 +92,7 @@ async def update_user(user_data: User, userid: str, db: Session = Depends(get_db
         db.rollback()
         raise HTTPException(status_code=500, detail="Internal Server Error")
 
-async def delete_user(userid: str, db: Session = Depends(get_db)):
+def delete_user(userid: str, db: Session = Depends(get_db)):
     """
     Delete a user by userid.
 

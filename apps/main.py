@@ -9,7 +9,7 @@ from fastapi.staticfiles import StaticFiles
 templates = Jinja2Templates(directory="apps/templates")
 
 app = FastAPI(
-    title="REST API PRAKTISI",
+    title="REST SERVER PRAKTISI",
     debug=True,
     version="1.0.0",
     description="PRAKTISI Backend Web Application",

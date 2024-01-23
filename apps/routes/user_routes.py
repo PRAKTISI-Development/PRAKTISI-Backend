@@ -44,8 +44,8 @@ async def update_user_endpoint(userid: str, user_data: UserSchema, db: Session =
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.delete("/{userid}", response_model=None)
-async def delete_user_endpoint(userid: str, db: Session = Depends(get_db)):
-    user = await delete_user(userid, db)
+def delete_user_endpoint(userid: str, db: Session = Depends(get_db)):
+    user = delete_user(userid, db)
     if user:
         try:
             return response(status_code=200, success=True, msg="Data User berhasil dihapus!", data=user)

@@ -17,6 +17,7 @@ def create_informasi(informasi_data: InformasiSchema, db: Session = Depends(get_
 
         return db_informasi
     except Exception as e:
+        print(e)
         raise HTTPException(status_code=500, detail=e.detail)
 
 
