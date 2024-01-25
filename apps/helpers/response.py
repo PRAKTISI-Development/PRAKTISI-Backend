@@ -11,7 +11,7 @@ def response(status_code: int, success: bool, msg: str, data: List) -> Dict[str,
         - data (Any): Data payload.
 
     Returns:
-        dict: Standardized response dictionary.
+        JSON: Standardized response JSON.
     """
     return {
         'status_code': status_code,
