@@ -5,7 +5,7 @@ from apps.models.detail_pengumpulan import DetailPengumpulan as DetailPengumpula
 from functools import lru_cache
 
 def create_detail_pengumpulan(detail_pengumpulan_data: DetailPengumpulanModel, db: Session = Depends(get_db)):
-    db_detail_pengumpulan = DetailPengumpulanModel(**detail_pengumpulan_data)
+    db_detail_pengumpulan = DetailPengumpulanModel(**detail_pengumpulan_data.dict())
     db.add(db_detail_pengumpulan)
     db.commit()
     db.flush()

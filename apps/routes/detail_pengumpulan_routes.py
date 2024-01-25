@@ -9,12 +9,12 @@ router = APIRouter()
 
 @router.post("/", response_model=DetailPengumpulanSchema)
 async def create_detail_pengumpulan_endpoint(detail_pengumpulan_data: DetailPengumpulanSchema, db: Session = Depends(get_db)):
-    detail_pengumpulan = create_detail_pengumpulan(detail_pengumpulan_data, db)
-    if detail_pengumpulan:
-        try:
-            return response(status_code=200, success=True, msg="Berhasil ditambahkan", data=detail_pengumpulan)
-        except HTTPException as e:
-            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+    try:
+        detail_pengumpulan = create_detail_pengumpulan(detail_pengumpulan_data, db)
+        if detail_pengumpulan:
+            return detail_pengumpulan
+    except HTTPException as e:
+        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.get("/{usersid}/{kd_tugas}")
 async def read_detail_pengumpulan_endpoint(usersid: str, kd_tugas: str, db: Session = Depends(get_db)):
