@@ -4,8 +4,7 @@ from datetime import datetime
 class DetailPengumpulanSchema(BaseModel):
     usersid: str
     kd_tugas: str
-    tanggal_pengumpulan: datetime
-    file_path: str
+    file_tugas: str
 
     class Config:
         orm_mode = True
