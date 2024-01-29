@@ -1,7 +1,6 @@
 from sqlalchemy import Column, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship
 from apps.database import Base
-from apps.models.matkul_prak import MatkulPrak
 
 class User(Base):
     __tablename__ = "users"
@@ -16,7 +15,7 @@ class User(Base):
     dosen = Column(Boolean, nullable=False)
     kd_matkul = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"))
 
-    matkul_prak = relationship("MatkulPrak", back_populates="user", foreign_keys=[MatkulPrak.usersid], remote_side="MatkulPrak.usersid")
+    matkul_prak = relationship("MatkulPrak", back_populates="users", foreign_keys=[kd_matkul])
     nilai_akhir = relationship("NilaiAkhir", back_populates="user")
     detail_pengumpulan = relationship("DetailPengumpulan", back_populates="user")
     kehadiran = relationship("Kehadiran", back_populates="user")

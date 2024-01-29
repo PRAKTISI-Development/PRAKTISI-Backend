@@ -11,7 +11,3 @@ def identity_generator():
     alphabet = string.ascii_letters + string.digits
     random_string = ''.join(secrets.choice(alphabet) for _ in range(10))
     return str(random_string)
-
-# Example usage:
-random_string = identity_generator()
-print(random_string)

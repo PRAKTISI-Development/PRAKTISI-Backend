@@ -11,6 +11,7 @@ class Jadwal(Base):
     waktu_selesai = Column(Time, nullable=False)
     kelas = Column(String(length=8), nullable=False)
     ruangan = Column(String(length=30), nullable=False)
+    materi = Column(String(length=100), nullable=False)
     kd_matkul = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"))
 
     matkul_prak = relationship("MatkulPrak", back_populates="jadwal")
