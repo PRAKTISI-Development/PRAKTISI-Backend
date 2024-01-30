@@ -13,10 +13,12 @@ class User(Base):
     praktikan = Column(Boolean, nullable=False)
     asisten_laboratorium = Column(Boolean, nullable=False)
     dosen = Column(Boolean, nullable=False)
-    kd_matkul = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"))
 
-    matkul_prak = relationship("MatkulPrak", back_populates="users", foreign_keys=[kd_matkul])
+    matkul_prak_id = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"))
+    matkul_prak = relationship("MatkulPrak", back_populates="users", foreign_keys=[matkul_prak_id])
+
     nilai_akhir = relationship("NilaiAkhir", back_populates="user")
     detail_pengumpulan = relationship("DetailPengumpulan", back_populates="user")
     kehadiran = relationship("Kehadiran", back_populates="user")
     informasi = relationship("Informasi", back_populates="user")
+

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.models.detail_pengumpulan import DetailPengumpulan as DetailPengumpulanModel
 from functools import lru_cache
+from apps.helpers.generator import identity_generator
 
 def create_detail_pengumpulan(detail_pengumpulan_data: DetailPengumpulanModel, db: Session = Depends(get_db)):
     db_detail_pengumpulan = DetailPengumpulanModel(**detail_pengumpulan_data.dict())

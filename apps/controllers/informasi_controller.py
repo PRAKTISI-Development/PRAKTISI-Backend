@@ -3,9 +3,12 @@ from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.models.informasi import Informasi as InformasiModel
 from apps.schemas.informasi_schema import InformasiSchema
+from apps.helpers.generator import identity_generator
 
 def create_informasi(informasi_data: InformasiSchema, db: Session = Depends(get_db)):
     try:
+
+        informasi_data.kd_informasi = identity_generator()
 
         db_informasi = InformasiModel(**informasi_data.dict())
 

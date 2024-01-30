@@ -13,8 +13,8 @@ app = FastAPI(
     debug=True,
     version="1.0.0",
     description="PRAKTISI Backend Web Application",
-    docs_url="/api_docs",
-    redoc_url="/redocs",
+    docs_url="/docs",
+    redoc_url="/documentations",
     openapi_url="/openapi.json",
 )
 
