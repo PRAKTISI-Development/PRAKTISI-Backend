@@ -15,5 +15,5 @@ class Jadwal(Base):
     kd_matkul = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"))
 
     matkul_prak = relationship("MatkulPrak", back_populates="jadwal")
-    kehadiran = relationship("Kehadiran", back_populates="jadwal")
+    kehadiran = relationship("Kehadiran", back_populates="jadwal", primaryjoin="Jadwal.kd_jadwal == Kehadiran.kd_jadwal")
 

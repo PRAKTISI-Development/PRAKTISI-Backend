@@ -14,8 +14,10 @@ class User(Base):
     asisten_laboratorium = Column(Boolean, nullable=False)
     dosen = Column(Boolean, nullable=False)
 
-    matkul_prak_id = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"))
-    matkul_prak = relationship("MatkulPrak", back_populates="users", foreign_keys=[matkul_prak_id])
+    kd_matkul = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"))
+    matkul_prak = relationship("MatkulPrak", back_populates="users", foreign_keys=[kd_matkul],
+                               primaryjoin="User.kd_matkul == MatkulPrak.kd_matkul",
+                               remote_side="MatkulPrak.kd_matkul")
 
     nilai_akhir = relationship("NilaiAkhir", back_populates="user")
     detail_pengumpulan = relationship("DetailPengumpulan", back_populates="user")

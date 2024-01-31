@@ -7,6 +7,10 @@ class Kehadiran(Base):
 
     usersid = Column(String(length=20), ForeignKey('users.userid'), primary_key=True)
     tanggal_kehadiran = Column(DateTime, primary_key=True)
-    status_kehadiran = Column(String(length=10), nullable=False)  
+    status_kehadiran = Column(String(length=10), nullable=False) 
+
+    kd_jadwal = Column(String(length=5), ForeignKey('jadwal.kd_jadwal'), primary_key=True) 
+
+    jadwal = relationship('Jadwal', back_populates='kehadiran', primaryjoin="Jadwal.kd_jadwal == Kehadiran.kd_jadwal")
 
     user = relationship('User', back_populates='kehadiran')

@@ -14,7 +14,7 @@ app = FastAPI(
     version="1.0.0",
     description="PRAKTISI Backend Web Application",
     docs_url="/docs",
-    redoc_url="/documentations",
+    redoc_url="/redocs",
     openapi_url="/openapi.json",
 )
 
@@ -33,7 +33,7 @@ async def redocs():
     return await HTMLResponse(content="This is your Redoc page.")
 
 @app.get('/')
-async def root():
+def root():
     return RedirectResponse(url='/redocs')
 
 @app.exception_handler(404)

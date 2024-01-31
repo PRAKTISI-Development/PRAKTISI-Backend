@@ -7,9 +7,9 @@ class MatkulPrak(Base):
 
     kd_matkul = Column(String(length=10), primary_key=True, index=True)
     nama_matkul = Column(String(length=100), nullable=False)
-    usersid = Column(String(length=20), ForeignKey("users.userid"))
 
-    users = relationship("User", back_populates="matkul_prak", foreign_keys=[usersid], uselist=False)
+    users = relationship("User", back_populates="matkul_prak")
+
     jadwal = relationship("Jadwal", back_populates="matkul_prak")
     nilai_akhir = relationship("NilaiAkhir", back_populates="matkul_prak")
     tugas = relationship("Tugas", back_populates="matkul_prak")

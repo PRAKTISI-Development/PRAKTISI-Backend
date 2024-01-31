@@ -9,4 +9,6 @@ class NilaiAkhir(Base):
     kd_matkul = Column(String(length=10), ForeignKey("matkul_prak.kd_matkul"), primary_key=True, index=True)
     nilai_akhir = Column(Float, default=0.00)
 
+    user = relationship("User", back_populates="nilai_akhir")
+
     matkul_prak = relationship("MatkulPrak", back_populates="nilai_akhir")
