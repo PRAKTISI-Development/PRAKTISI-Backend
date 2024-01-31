@@ -2,9 +2,10 @@ from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.models.tugas import Tugas 
+from apps.schemas.tugas_schema import TugasSchema
 
-def create_tugas(tugas_data: Tugas, db: Session = Depends(get_db)):
-    db_tugas = Tugas(**tugas_data)
+def create_tugas(tugas_data: TugasSchema, db: Session = Depends(get_db)):
+    db_tugas = Tugas(**tugas_data.model_dump())
     db.add(db_tugas)
     db.commit()
     db.refresh(db_tugas)

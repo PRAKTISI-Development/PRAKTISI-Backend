@@ -2,11 +2,12 @@ from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.models.jadwal import Jadwal 
+from apps.schemas.jadwal_schema import JadwalSchema
 from apps.helpers.generator import identity_generator
 
-def create_jadwal(jadwal_data: Jadwal, db: Session = Depends(get_db)):
+def create_jadwal(jadwal_data: JadwalSchema, db: Session = Depends(get_db)):
     jadwal_data.kd_jadwal = identity_generator()
-    db_jadwal = Jadwal(**jadwal_data)
+    db_jadwal = Jadwal(**jadwal_data.model_dump())
     db.add(db_jadwal)
     db.commit()
     db.refresh(db_jadwal)

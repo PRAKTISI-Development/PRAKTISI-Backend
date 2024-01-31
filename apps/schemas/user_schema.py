@@ -1,14 +1,16 @@
 from pydantic import BaseModel, EmailStr
+from typing import Optional
 
 class UserSchema(BaseModel):
     userid: str
     nama: str
     email: EmailStr
+    password: str
     semester: str
     praktikan: bool
     asisten_laboratorium: bool
     dosen: bool
-    kd_matkul: str
+    kd_matkul: Optional[str]
 
     class Config:
         orm_mode = True

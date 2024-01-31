@@ -1,6 +1,8 @@
 from typing import Any, Dict, List  
+from fastapi.responses import JSONResponse
+import json
 
-def response(status_code: int, success: bool, msg: str, data: List) -> Dict[str, Any]:
+def response(status_code: int, success: bool, msg: str, data: Any) -> Dict[str, Any]:
     """
     Generate a standardized response dictionary.
 
@@ -13,9 +15,9 @@ def response(status_code: int, success: bool, msg: str, data: List) -> Dict[str,
     Returns:
         JSON: Standardized response JSON.
     """
-    return {
+    return JSONResponse({
         'status_code': status_code,
         'success'    : success,
         'msg'        : msg,
         'data'       : data
-    }
+    })

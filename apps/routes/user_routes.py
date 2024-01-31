@@ -8,13 +8,9 @@ from apps.schemas.user_schema import UserSchema
 router = APIRouter()
 
 @router.post("/", response_model=UserSchema)
-async def create_user_endpoint(user_data: UserSchema, db: Session = Depends(get_db)):
-    user = await create_user(user_data, db)
-    if user:
-        try:
-            return response(status_code=200, success=True, msg="User berhasil ditambahkan!", data=user)
-        except HTTPException as e:
-            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+def create_user_endpoint(user_data: UserSchema, db: Session = Depends(get_db)):
+    user = create_user(user_data, db)
+    return user
 
 @router.get("/{userid}", response_model=None)
 async def read_user_endpoint(userid: str, db: Session = Depends(get_db)):

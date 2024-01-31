@@ -10,4 +10,4 @@ def identity_generator():
     """
     alphabet = string.ascii_letters + string.digits
     random_string = ''.join(secrets.choice(alphabet) for _ in range(10))
-    return str(random_string)
+    return random_string

@@ -1,9 +1,10 @@
 from pydantic import BaseModel
 from datetime import datetime
 from enum import Enum
+from apps.helpers.generator import identity_generator
 
 class TugasSchema(BaseModel):
-    kd_tugas: str
+    kd_tugas: str = identity_generator()
     jenis_tugas: Enum('Post Test', 'Proyek Akhir')
     nama_tugas: str
     deskripsi_tugas: str

@@ -3,31 +3,22 @@ from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.models.users import User
 from functools import lru_cache
+from apps.schemas.user_schema import UserSchema
+from fastapi.exceptions import HTTPException
 
-async def create_user(user_data: User, db: Session = Depends(get_db)):
-    """
-    Create a new user.
-
-    Args:
-        user_data (User): User data to be created.
-        db (Session): Database session.
-
-    Returns:
-        User: Created user.
-
-    Raises:
-        HTTPException: If an internal server error occurs during database operations.
-    """
+def create_user(user_data: UserSchema, db: Session = Depends(get_db)):
     try:
-        db_user = User(**user_data)
+        db_user = User(**user_data.model_dump())
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
+        db.flush()
         return db_user
-    except Exception as e:
-        db.rollback()
-        # raise HTTPException(status_code=500, detail="Internal Server Error")
+    except HTTPException as e:
         print(e)
+        db.rollback()
+        # raise HTTPException(status_code=500, detail="Failed to create user")
+
 
 @lru_cache
 async def get_user(userid: str, db: Session = Depends(get_db)):

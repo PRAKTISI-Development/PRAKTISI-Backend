@@ -4,24 +4,28 @@ from apps.database import get_db
 from apps.models.informasi import Informasi as InformasiModel
 from apps.schemas.informasi_schema import InformasiSchema
 from apps.helpers.generator import identity_generator
-
+from apps.helpers.response import response
+from fastapi.responses import JSONResponse
 def create_informasi(informasi_data: InformasiSchema, db: Session = Depends(get_db)):
     try:
-
+        # Generate kd_informasi outside of InformasiSchema
         informasi_data.kd_informasi = identity_generator()
-
-        db_informasi = InformasiModel(**informasi_data.dict())
-
+        
+        # Use the generated kd_informasi when creating InformasiModel
+        db_informasi = InformasiModel(
+            **informasi_data.model_dump()
+        )
+    
         db.add(db_informasi)
         db.commit()
         db.refresh(db_informasi)
-
-        print(db_informasi)
-
+        # response_data = response(status_code=200,success=True,message="Successfully created",data=db_informasi)
+        # return JSONResponse(content=response_data)
         return db_informasi
     except Exception as e:
         print(e)
-        raise HTTPException(status_code=500, detail=e.detail)
+
+
 
 
 def get_informasi(kd_informasi: str, db: Session = Depends(get_db)):

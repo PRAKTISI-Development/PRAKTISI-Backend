@@ -2,9 +2,10 @@ from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.models.kehadiran import Kehadiran as KehadiranModel
+from apps.schemas.kehadiran_schema import KehadiranSchema
 
-def create_kehadiran(kehadiran_data: KehadiranModel, db: Session = Depends(get_db)):
-    db_kehadiran = KehadiranModel(**kehadiran_data)
+def create_kehadiran(kehadiran_data: KehadiranSchema, db: Session = Depends(get_db)):
+    db_kehadiran = KehadiranModel(**kehadiran_data.model_dump())
     db.add(db_kehadiran)
     db.commit()
     db.refresh(db_kehadiran)

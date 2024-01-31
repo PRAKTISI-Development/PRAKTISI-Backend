@@ -1,11 +1,12 @@
-# app/controllers/matkul_prak.py
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from apps.database import get_db
+from apps.schemas.matkul_prak_schema import MatkulPrakSchema
 from apps.models.matkul_prak import MatkulPrak as MatkulPrakModel
 
-def create_matkul_prak(matkul_prak_data: MatkulPrakModel, db: Session = Depends(get_db)):
-    db_matkul_prak = MatkulPrakModel(**matkul_prak_data)
+def create_matkul_prak(matkul_prak_data: MatkulPrakSchema, db: Session = Depends(get_db)):
+    db_matkul_prak = MatkulPrakModel(**matkul_prak_data.model_dump())
+
     db.add(db_matkul_prak)
     db.commit()
     db.refresh(db_matkul_prak)

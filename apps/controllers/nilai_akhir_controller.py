@@ -2,9 +2,10 @@ from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.models.nilai_akhir import NilaiAkhir as NilaiAkhirModel
+from apps.schemas.nilai_akhir_schema import NilaiAkhirSchema
 
-def create_nilai_akhir(nilai_akhir_data: NilaiAkhirModel, db: Session = Depends(get_db)):
-    db_nilai_akhir = NilaiAkhirModel(**nilai_akhir_data)
+def create_nilai_akhir(nilai_akhir_data: NilaiAkhirSchema, db: Session = Depends(get_db)):
+    db_nilai_akhir = NilaiAkhirModel(**nilai_akhir_data.model_dump())
     db.add(db_nilai_akhir)
     db.commit()
     db.refresh(db_nilai_akhir)
