@@ -3,29 +3,30 @@ from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.models.informasi import Informasi as InformasiModel
 from apps.schemas.informasi_schema import InformasiSchema
-from apps.helpers.generator import identity_generator
-from apps.helpers.response import response
-from fastapi.responses import JSONResponse
+from apps.helpers.generator import identity_generator_information
+from apps.helpers.response import post_response,response
+from sqlalchemy.orm import attributes
+
 def create_informasi(informasi_data: InformasiSchema, db: Session = Depends(get_db)):
     try:
-        # Generate kd_informasi outside of InformasiSchema
-        informasi_data.kd_informasi = identity_generator()
-        
-        # Use the generated kd_informasi when creating InformasiModel
-        db_informasi = InformasiModel(
-            **informasi_data.model_dump()
-        )
-    
+        # Generate ID
+        informasi_data.kd_informasi = identity_generator_information()
+
+        db_informasi = InformasiModel(**informasi_data.model_dump())
         db.add(db_informasi)
         db.commit()
         db.refresh(db_informasi)
-        # response_data = response(status_code=200,success=True,message="Successfully created",data=db_informasi)
-        # return JSONResponse(content=response_data)
-        return db_informasi
+
+        # Adjustments for response
+        db_informasi.tanggal = db_informasi.tanggal.isoformat()
+        instance_dict = attributes.instance_dict(db_informasi)
+        instance_dict.pop('_sa_instance_state', None)
+
+        return post_response(status_code=200, success=True, msg="Successfully created", data=instance_dict)
+
     except Exception as e:
         print(e)
-
-
+        raise HTTPException(status_code=500, detail="Error occurred")
 
 
 def get_informasi(kd_informasi: str, db: Session = Depends(get_db)):
