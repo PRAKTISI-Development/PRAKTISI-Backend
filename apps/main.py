@@ -6,8 +6,6 @@ from apps.routes import *
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 
-templates = Jinja2Templates(directory="apps/templates")
-
 app = FastAPI(
     title="REST SERVER PRAKTISI",
     debug=True,
@@ -25,21 +23,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.mount("/public", StaticFiles(directory="apps/public"), name="public")
-app.mount("/404", StaticFiles(directory="apps/templates"), name="404")
-
-@app.get("/redocs", response_class=HTMLResponse)
-async def redocs():
-    return await HTMLResponse(content="This is your Redoc page.")
-
 @app.get('/')
 def root():
     return RedirectResponse(url='/redocs')
-
-@app.exception_handler(404)
-async def not_found_exception_handler(request, exc):
-    data = {"detail": "not found"}
-    return templates.TemplateResponse("404.html", {"request": request, "data" : data}, status_code=404)
 
 Base.metadata.create_all(bind=engine)
 app.include_router(detail_pengumpulan_routes.router, prefix="/v1/detail_pengumpulan", tags=["Detail Pengumpulan"])
