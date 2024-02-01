@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, Request
 from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.controllers.informasi_controller import *
@@ -7,26 +7,30 @@ from apps.schemas.informasi_schema import InformasiSchema
 
 router = APIRouter()
 
+def get_request_method(request: Request):
+    return request.method
+
 @router.post("/", response_model=InformasiSchema)
-def create_informasi_endpoint(informasi_data: InformasiSchema, db: Session = Depends(get_db)):
-    informasi = create_informasi(informasi_data, db)
-    return informasi
+def create_informasi_endpoint(request:Request, informasi_data: InformasiSchema, db: Session = Depends(get_db)):
+    db_informasi = create_informasi(request, informasi_data, db)
+    return db_informasi
 
 @router.get("/{kd_informasi}", response_model=None)
-async def read_informasi_endpoint(kd_informasi: str, db: Session = Depends(get_db)):
+async def read_informasi_endpoint(request: Request, kd_informasi: str, db: Session = Depends(get_db)):
     informasi = get_informasi(kd_informasi, db)
     if informasi:
         try:
-            return response(status_code=200, success=True, msg=f"Informasi {kd_informasi} ditemukan", data=informasi)
+            return response(request, status_code=200, success=True, msg=f"Informasi {kd_informasi} ditemukan", data=informasi)
         except HTTPException as e:
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 @router.get('/')
-async def read_all_informasi_endpoint(db: Session = Depends(get_db)):
+async def read_all_informasi_endpoint(request:Request,db: Session = Depends(get_db)):
     informasi = get_all_informasi(db)
+
     if informasi:
         try:
-            return response(status_code=200, success=True, msg="Informasi ditemukan", data=informasi)
+            return response(request,status_code=200, success=True, msg="Informasi ditemukan", data=informasi)
         except HTTPException as e:
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 

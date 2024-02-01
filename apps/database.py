@@ -20,6 +20,9 @@ except OperationalError as e:
     raise SystemExit()
 
 async def get_db():
+    """
+    Get the database session
+    """
     db = SessionLocal()
     try:
         yield db

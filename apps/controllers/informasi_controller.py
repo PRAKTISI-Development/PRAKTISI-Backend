@@ -4,10 +4,10 @@ from apps.database import get_db
 from apps.models.informasi import Informasi as InformasiModel
 from apps.schemas.informasi_schema import InformasiSchema
 from apps.helpers.generator import identity_generator_information
-from apps.helpers.response import post_response,response
+from apps.helpers.response import response
 from sqlalchemy.orm import attributes
 
-def create_informasi(informasi_data: InformasiSchema, db: Session = Depends(get_db)):
+def create_informasi(request, informasi_data: InformasiSchema, db: Session = Depends(get_db)):
     try:
         # Generate ID
         informasi_data.kd_informasi = identity_generator_information()
@@ -19,10 +19,9 @@ def create_informasi(informasi_data: InformasiSchema, db: Session = Depends(get_
 
         # Adjustments for response
         db_informasi.tanggal = db_informasi.tanggal.isoformat()
-        instance_dict = attributes.instance_dict(db_informasi)
-        instance_dict.pop('_sa_instance_state', None)
 
-        return post_response(status_code=200, success=True, msg="Successfully created", data=instance_dict)
+
+        return response(request, status_code=200, success=True, msg="Successfully created", data=db_informasi)
 
     except Exception as e:
         print(e)

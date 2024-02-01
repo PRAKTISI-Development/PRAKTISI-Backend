@@ -8,6 +8,7 @@ class JadwalSchema(BaseModel):
     tanggal: date
     waktu_mulai: time
     waktu_selesai: time
+    kelas: str
     ruangan: str
     materi: str
     kd_matkul: str
