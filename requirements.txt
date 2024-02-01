@@ -9,4 +9,5 @@ PyJWT
 pymysql
 jinja2
 mysql-client
+requests
 

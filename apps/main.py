@@ -1,14 +1,12 @@
 from fastapi import FastAPI
-from fastapi.responses import RedirectResponse, HTMLResponse
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from apps.database import Base, engine
 from apps.routes import *
-from fastapi.templating import Jinja2Templates
-from fastapi.staticfiles import StaticFiles
 
 app = FastAPI(
     title="REST SERVER PRAKTISI",
-    debug=True,
+    debug=False,
     version="1.0.0",
     description="PRAKTISI Backend Web Application",
     docs_url="/docs",
@@ -25,7 +23,8 @@ app.add_middleware(
 
 @app.get('/')
 def root():
-    return RedirectResponse(url='/redocs')
+    message = "Endpoint Not Found"
+    return RedirectResponse(url='/redocs', status_code=303)
 
 Base.metadata.create_all(bind=engine)
 app.include_router(detail_pengumpulan_routes.router, prefix="/v1/detail_pengumpulan", tags=["Detail Pengumpulan"])
