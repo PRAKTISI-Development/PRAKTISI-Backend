@@ -3,16 +3,16 @@ from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.models.informasi import Informasi as InformasiModel
 from apps.schemas.informasi_schema import InformasiSchema
-from apps.helpers.generator import identity_generator_information
+from apps.helpers.generator import identity_generator
 from apps.helpers.response import response
 from sqlalchemy.orm import attributes
 
-def create_informasi(request, informasi_data: InformasiSchema, db: Session = Depends(get_db)):
+def create_informasi(request, informasi_data: InformasiSchema, db: Session):
     try:
         # Generate ID
-        informasi_data.kd_informasi = identity_generator_information()
+        informasi_data.kd_informasi = identity_generator()
 
-        db_informasi = InformasiModel(**informasi_data.model_dump())
+        db_informasi = InformasiModel(**informasi_data.dict())
         db.add(db_informasi)
         db.commit()
         db.refresh(db_informasi)
@@ -20,45 +20,53 @@ def create_informasi(request, informasi_data: InformasiSchema, db: Session = Dep
         # Adjustments for response
         db_informasi.tanggal = db_informasi.tanggal.isoformat()
 
+        return response(request, status_code=201, success=True, msg="Successfully created", data=db_informasi)
 
-        return response(request, status_code=200, success=True, msg="Successfully created", data=db_informasi)
-
-    except Exception as e:
-        print(e)
-        raise HTTPException(status_code=500, detail="Error occurred")
+    except HTTPException as e:
+        # Include the detail message from HTTPException in the 'msg' parameter
+        return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
 
 
-def get_informasi(kd_informasi: str, db: Session = Depends(get_db)):
-    informasi = db.query(InformasiModel).filter(InformasiModel.kd_informasi == kd_informasi).first()
+def get_informasi(request,kd_informasi: str, db: Session = Depends(get_db)):
+    try:
+        informasi = db.query(InformasiModel).filter(InformasiModel.kd_informasi == kd_informasi).first()
+        return response(request,status_code=200, success=True, msg="Informasi ditemukan", data=informasi)
     
-    if informasi is None:
-        raise HTTPException(status_code=404, detail="Informasi not found")
-    
-    return informasi
+    except HTTPException as e:
+        return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-def get_all_informasi(db: Session = Depends(get_db)):
-    informasi_list = db.query(InformasiModel).all()
-    return informasi_list
+def get_all_informasi(request,db: Session = Depends(get_db)):
+    try:
+        informasi_list = db.query(InformasiModel).all()
+        return response(request,status_code=200, success=True, msg="Informasi ditemukan", data=informasi_list)
+    
+    except HTTPException as e:
+        return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-def update_informasi(informasi_data: InformasiModel, kd_informasi: str, db: Session = Depends(get_db)):
-    db_informasi = db.query(InformasiModel).filter(InformasiModel.kd_informasi == kd_informasi).first()
+def update_informasi(request,informasi_data: InformasiModel, kd_informasi: str, db: Session = Depends(get_db)):
+    try:
+        db_informasi = db.query(InformasiModel).filter(InformasiModel.kd_informasi == kd_informasi).first() 
+        for key, value in informasi_data.dict().items():
+            setattr(db_informasi, key, value)
+        
+        db.commit()
+        db.refresh(db_informasi)
+        return response(request,status_code=200, success=True, msg="Berhasil memperbarui informasi", data=db_informasi)
     
-    if db_informasi is None:
-        raise HTTPException(status_code=404, detail="Informasi not found")
-    
-    for key, value in informasi_data.dict().items():
-        setattr(db_informasi, key, value)
-    
-    db.commit()
-    db.refresh(db_informasi)
-    return db_informasi
+    except HTTPException as e:
+        return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-def delete_informasi(kd_informasi: str, db: Session = Depends(get_db)):
-    db_informasi = db.query(InformasiModel).filter(InformasiModel.kd_informasi == kd_informasi).first()
-    
-    if db_informasi is None:
-        raise HTTPException(status_code=404, detail="Informasi not found")
+def delete_informasi(request,kd_informasi: str, db: Session = Depends(get_db)):
+    try:
+        db_informasi = db.query(InformasiModel).filter(InformasiModel.kd_informasi == kd_informasi).first()
+        
+        if db_informasi is None:
+            raise HTTPException(status_code=404, detail="Informasi not found")
 
-    db.delete(db_informasi)
-    db.commit()
-    return {"message": "Informasi deleted successfully"}
+        db.delete(db_informasi)
+        db.commit()
+
+        return response(request,status_code=200, success=True, msg="Informasi berhasil dihapus", data=None)
+    
+    except HTTPException as e:
+        return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
