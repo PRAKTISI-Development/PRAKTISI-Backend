@@ -21,7 +21,6 @@ def create_informasi(request, informasi_data, db):
     except HTTPException as e:
         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-
 def get_informasi(request,kd_informasi: str, db):
     try:
         informasi = db.query(InformasiModel).filter(InformasiModel.kd_informasi == kd_informasi).first()
