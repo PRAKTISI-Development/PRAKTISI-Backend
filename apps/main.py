@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from apps.database import Base, engine
 from apps.routes import *
+from apps.routes import auth_routes
 
 app = FastAPI(
     title="REST SERVER PRAKTISI",
@@ -35,3 +36,4 @@ app.include_router(jadwal_routes.router, prefix="/v1/jadwal", tags=["Jadwal"])
 app.include_router(nilai_akhir_routes.router, prefix="/v1/nilai_akhir", tags=["Nilai Akhir"])
 app.include_router(tugas_routes.router, prefix="/v1/tugas", tags=["Tugas"])
 app.include_router(user_routes.router, prefix="/v1/user", tags=["User"])
+app.include_router(auth_routes.router, prefix="/v1/auth", tags=["Auth"])
