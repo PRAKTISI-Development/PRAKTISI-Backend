@@ -49,7 +49,8 @@ def update_informasi(request,informasi_data: InformasiModel, kd_informasi: str, 
             raise HTTPException(status_code=404, detail="Informasi not found")
         
         for key, value in informasi_data.dict().items():
-            setattr(db_informasi, key, value)
+            if key != "kd_informasi":
+                setattr(db_informasi, key, value)
         
         db.commit()
         db.refresh(db_informasi)

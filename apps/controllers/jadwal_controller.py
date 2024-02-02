@@ -51,7 +51,8 @@ def update_jadwal(request, jadwal_data: Jadwal, kd_jadwal: str, db):
             raise HTTPException(status_code=404, detail="Jadwal not found")
         
         for key, value in jadwal_data.dict().items():
-            setattr(db_jadwal, key, value)
+            if key != "kd_jadwal":
+                setattr(db_jadwal, key, value)
 
         db.commit()
         db.refresh(db_jadwal)

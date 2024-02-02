@@ -3,9 +3,13 @@ from datetime import datetime
 from enum import Enum
 from apps.helpers.generator import identity_generator
 
+class JenistugasEnum(str, Enum):
+    Hadir = 'Post Test'
+    Tidak_Hadir = 'Proyek Akhir'
+
 class TugasSchema(BaseModel):
     kd_tugas: str = identity_generator()
-    jenis_tugas: Enum('Post Test', 'Proyek Akhir')
+    jenis_tugas: JenistugasEnum
     nama_tugas: str
     deskripsi_tugas: str
     tanggal_dibuat: datetime

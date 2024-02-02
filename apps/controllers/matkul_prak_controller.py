@@ -29,7 +29,9 @@ def get_matkul_prak(request, kd_matkul: str, db):
 def get_all_matkul_prak(request, db):
     try :
         matkul_prak_list = db.query(MatkulPrakModel).all()
+
         return response(request,status_code=200, success=True, msg="Matkul ditemukan", data=matkul_prak_list)
+    
     except HTTPException as e:
         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)    
 
@@ -41,7 +43,8 @@ def update_matkul_prak(request, matkul_prak_data: MatkulPrakModel, kd_matkul: st
             raise HTTPException(status_code=404, detail="Matkul Prak not found")
         
         for key, value in matkul_prak_data.dict().items():
-            setattr(db_matkul_prak, key, value)
+            if key != "kd_matkul":
+                setattr(db_matkul_prak, key, value)
         
         db.commit()
         db.refresh(db_matkul_prak)
