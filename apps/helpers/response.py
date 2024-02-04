@@ -64,7 +64,6 @@ def response(request: Request, status_code: int, success: bool, msg: str, data: 
         'msg': msg,
         'data': data
     }
-
     if request.method == "POST":
         instance_dict = attributes.instance_dict(data)
         instance_dict.pop('_sa_instance_state', None)

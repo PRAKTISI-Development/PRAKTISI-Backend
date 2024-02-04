@@ -11,6 +11,7 @@ class DetailPengumpulan(Base):
     tanggal_dikumpul = Column(DateTime, nullable=False, default=datetime.datetime.now())
     file_tugas = Column(Text, nullable=False)
     nilai_tugas = Column(Integer, nullable=False, default=0)
+    file_path = Column(Text,nullable=False)
 
     user = relationship('User', back_populates='detail_pengumpulan')
     tugas = relationship('Tugas', back_populates='detail_pengumpulan')

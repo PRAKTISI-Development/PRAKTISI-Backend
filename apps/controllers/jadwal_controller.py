@@ -8,7 +8,7 @@ def create_jadwal(request, jadwal_data, db):
             # Generate ID
             jadwal_data.kd_jadwal = identity_generator()
 
-            db_jadwal = Jadwal(**jadwal_data.dict())
+            db_jadwal = Jadwal(**jadwal_data.model_dump())
             db.add(db_jadwal)
             db.commit()
             db.refresh(db_jadwal)

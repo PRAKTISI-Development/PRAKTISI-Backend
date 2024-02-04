@@ -1,55 +1,26 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends, Request, File, UploadFile
 from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.controllers.detail_pengumpulan_controller import *
-from apps.helpers.response import response
 from apps.schemas.detail_pengumpulan_schema import DetailPengumpulanSchema
 
 router = APIRouter()
-
 @router.post("/", response_model=DetailPengumpulanSchema)
-async def create_detail_pengumpulan_endpoint(detail_pengumpulan_data: DetailPengumpulanSchema, db: Session = Depends(get_db)):
-    try:
-        detail_pengumpulan = create_detail_pengumpulan(detail_pengumpulan_data, db)
-        if detail_pengumpulan:
-            return detail_pengumpulan
-    except HTTPException as e:
-        return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+async def create_detail_pengumpulan_endpoint(request: Request,detail_pengumpulan_data: DetailPengumpulanSchema=Depends(DetailPengumpulanSchema.as_form),db: Session = Depends(get_db)):
+    return create_detail_pengumpulan(request, detail_pengumpulan_data, db)
 
 @router.get("/{usersid}/{kd_tugas}")
-async def read_detail_pengumpulan_endpoint(usersid: str, kd_tugas: str, db: Session = Depends(get_db)):
-    detail_pengumpulan = get_detail_pengumpulan(usersid, kd_tugas, db)
-    if detail_pengumpulan:
-        try:
-            return response(status_code=200, success=True, msg=f"Data {usersid} ditemukan!", data=detail_pengumpulan)
-        except HTTPException as e:
-            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+async def read_detail_pengumpulan_endpoint(request:Request,usersid: str, kd_tugas: str, db: Session = Depends(get_db)):
+    return get_detail_pengumpulan(request, usersid, kd_tugas, db)
 
 @router.get("/")
-async def read_all_detail_pengumpulan_endpoint(db: Session = Depends(get_db)):
-    detail_pengumpulan = get_all_detail_pengumpulan(db)
-    if detail_pengumpulan:
-        try:
-            return response(status_code=200, success=True, msg="Data ditemukan!", data=detail_pengumpulan)
-        except HTTPException as e:
-            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+async def read_all_detail_pengumpulan_endpoint(request:Request,db: Session = Depends(get_db)):
+    return get_all_detail_pengumpulan(request, db)
 
 @router.put("/{usersid}/{kd_tugas}")
-async def update_detail_pengumpulan_endpoint(usersid: str, kd_tugas: str, detail_pengumpulan_data: DetailPengumpulanSchema, db: Session = Depends(get_db)):
-    detail_pengumpulan = update_detail_pengumpulan(detail_pengumpulan_data, usersid, kd_tugas, db)
-    if detail_pengumpulan:
-        try:
-            return response(status_code=200, success=True, msg="Data berhasil diperbarui!", data=detail_pengumpulan)
-        except HTTPException as e:
-            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
+async def update_detail_pengumpulan_endpoint(request:Request, usersid: str, kd_tugas: str, detail_pengumpulan_data: DetailPengumpulanSchema, db: Session = Depends(get_db)):
+    return update_detail_pengumpulan(request, detail_pengumpulan_data, usersid, kd_tugas, db)
 
 @router.delete("/{usersid}/{kd_tugas}")
-async def delete_detail_pengumpulan_endpoint(usersid: str, kd_tugas: str, db: Session = Depends(get_db)):
-    detail_pengumpulan = delete_detail_pengumpulan(usersid, kd_tugas, db)
-    if detail_pengumpulan:
-        try:
-            return response(status_code=200, success=True, msg="Data berhasil dihapus!", data=detail_pengumpulan)
-        except HTTPException as e:
-            return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
-
-
+async def delete_detail_pengumpulan_endpoint(request:Request, usersid: str, kd_tugas: str, db: Session = Depends(get_db)):
+    return delete_detail_pengumpulan(request, usersid, kd_tugas, db)
