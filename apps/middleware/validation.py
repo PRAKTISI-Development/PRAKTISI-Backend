@@ -1,21 +1,16 @@
 from fastapi import HTTPException, UploadFile
-from pydantic import BaseModel
-from apps.helpers.response import response
-from apps.schemas.detail_pengumpulan_schema import DetailPengumpulanSchema
 
 ALLOWED_EXTENSIONS = {'pdf'}
 MAX_FILE_SIZE_MB = 5
 MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
 
-def file_validation(request,file: UploadFile):
+def file_validation(file: UploadFile):
     content_type = file.content_type.lower()
     file_extension = file.filename.split('.')[-1].lower()
 
     if content_type != 'multipart/form-data' or file_extension not in ALLOWED_EXTENSIONS:
-        raise HTTPException(
-            status_code=400,
-            detail='Ekstensi tidak diizinkan'
-        ) 
+        error_detail = 'Ekstensi tidak diizinkan'
+        raise HTTPException (status_code=400,detail=error_detail)
 
     try:
         file_content = file.file.read()
@@ -33,4 +28,4 @@ def file_validation(request,file: UploadFile):
 
     file.file.seek(0) 
 
-    return file
+    return True
