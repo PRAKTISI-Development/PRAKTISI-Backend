@@ -10,4 +10,4 @@ pymysql
 jinja2
 mysql-client
 requests
-
+python-multipart
