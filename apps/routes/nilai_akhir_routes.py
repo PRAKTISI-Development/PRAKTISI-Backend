@@ -16,6 +16,13 @@ async def create_nilai_akhir_endpoint(nilai_akhir_data: NilaiAkhirSchema, db: Se
         except HTTPException as e:
             return response(status_code=e.status_code, success=False, msg=e.detail, data=None)
 
+#on progress
+@router.get("/akumulasi/{kd_matkul}")
+async def read_nilai_akhir(kd_matkul:str, db: Session = Depends(get_db)):
+    print(kd_matkul)
+    return get_akumulasi(kd_matkul, db)
+#end progress
+
 
 @router.get("/{usersid}/{kd_matkul}")
 async def read_nilai_akhir_endpoint(usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
