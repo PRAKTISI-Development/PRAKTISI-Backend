@@ -1,44 +1,27 @@
 from fastapi import HTTPException, Depends
 from sqlalchemy.orm import Session
+from functools import lru_cache
+
 from apps.database import get_db
 from apps.models.users import User
-from functools import lru_cache
 from apps.schemas.user_schema import UserSchema
-from fastapi.exceptions import HTTPException
 
-def create_user(user_data: UserSchema, db: Session = Depends(get_db)):
+def create_user(user_data: UserSchema, db: Session = Depends(get_db)) -> bool:
     try:
         db_user = User(**user_data.model_dump())
         db.add(db_user)
         db.commit()
         db.refresh(db_user)
-        db.flush()
-        return db_user
-    except HTTPException as e:
-        print(e)
-        db.rollback()
-        # raise HTTPException(status_code=500, detail="Failed to create user")
-
+        return True
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Terjadi error")
 
 @lru_cache
-async def get_user(userid: str, db: Session = Depends(get_db)):
-    """
-    Get a user by userid.
-
-    Args:
-        userid (str): User ID to be retrieved.
-        db (Session): Database session.
-
-    Returns:
-        User: Retrieved user.
-
-    Raises:
-        HTTPException: If the user is not found.
-    """
+def get_user(userid: str, db: Session = Depends(get_db)) -> User:
     user = db.query(User).filter(User.userid == userid).first()
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return user.__dict__
 
 @lru_cache
 async def get_all_users(db: Session = Depends(get_db)):
