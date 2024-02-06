@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Waktu pembuatan: 05 Feb 2024 pada 16.32
+-- Waktu pembuatan: 06 Feb 2024 pada 17.45
 -- Versi server: 10.4.32-MariaDB
 -- Versi PHP: 8.2.12
 
@@ -25,132 +25,154 @@ DELIMITER $$
 --
 -- Prosedur
 --
-DROP PROCEDURE IF EXISTS `akumulasi_nilai_dan_kehadiran`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `akumulasi_nilai_dan_kehadiran` (IN `matkul_name` VARCHAR(255))   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `akumulasi_nilai_dan_kehadiran` (IN `matkul_code` VARCHAR(255))   BEGIN
     DECLARE i INT DEFAULT 1;
     DECLARE tugas_count INT;
 
-    -- HITUNG JUMLAH KEHADIRAN
+    -- HITUNG JUMLAH TUGAS
     SELECT COUNT(DISTINCT kd_tugas) INTO tugas_count 
     FROM tugas 
     INNER JOIN matkul_prak ON tugas.kd_matkul = matkul_prak.kd_matkul 
-    WHERE matkul_prak.kd_matkul = (SELECT kd_matkul FROM matkul_prak WHERE nama_matkul = matkul_name);
+    WHERE matkul_prak.kd_matkul = matkul_code;
 
     -- THE QUERIES
     CREATE TEMPORARY TABLE IF NOT EXISTS PraktikanCTE (
         NIM CHAR(10),
+        kd_matkul CHAR(10),
+        kd_tugas CHAR(10),
         nama_lengkap VARCHAR(255),
         semester VARCHAR(30),
         praktikum VARCHAR(255),
         nilai_tugas INT,
         nilai_akhir INT,
         jenis_tugas VARCHAR(255),
-        row_num INT
+        row_num INT,
+        akumulasi_posttest DECIMAL(10, 2)
     );
 
-    INSERT INTO PraktikanCTE
-    SELECT
-        users.userid AS NIM,
-        users.nama AS nama_lengkap,
-        users.semester AS semester,
-        matkul_prak.nama_matkul AS praktikum,
-        detail_pengumpulan.nilai_tugas AS nilai_tugas,
-        nilai_akhir.nilai_akhir AS nilai_akhir,
-        tugas.jenis_tugas,
-        ROW_NUMBER() OVER (PARTITION BY users.userid, matkul_prak.nama_matkul ORDER BY detail_pengumpulan.nilai_tugas) AS row_num
-    FROM users 
-        INNER JOIN nilai_akhir ON users.userid = nilai_akhir.usersid
-        LEFT JOIN detail_pengumpulan ON users.userid = detail_pengumpulan.usersid
-        INNER JOIN matkul_prak ON nilai_akhir.kd_matkul = matkul_prak.kd_matkul
-        INNER JOIN tugas ON tugas.kd_matkul = matkul_prak.kd_matkul
-    WHERE users.praktikan = 1
-        AND matkul_prak.nama_matkul = matkul_name;
-
-    -- Inisialisasi variabel untuk akumulasi posttest
-    SET @posttest_sum := 0;
-    SET @posttest_count := 0;
-
-    -- Iterate through post test
-    REPEAT
-        IF EXISTS (SELECT 1 FROM tugas WHERE tugas.kd_matkul = (SELECT kd_matkul FROM matkul_prak WHERE nama_matkul = matkul_name) AND jenis_tugas = 'Post Test' AND i <= tugas_count) THEN
-            SET @posttest_sum := @posttest_sum + COALESCE((SELECT MAX(nilai_tugas) FROM PraktikanCTE WHERE row_num = i AND jenis_tugas = 'Post Test'), 0);
-            SET @posttest_count := @posttest_count + 1;
-        END IF;
-        SET i = i + 1;
-    UNTIL i > tugas_count END REPEAT;
-
-    -- Hitung nilai akumulasi posttest
-    SET @akumulasi_posttest := IF(@posttest_count > 0, @posttest_sum / @posttest_count, 0);
-
-    -- Dynamic column list for posttest
-    SET @posttest_columns := '';
-    SET i = 1;
-    WHILE i <= tugas_count DO
-        IF EXISTS (SELECT 1 FROM tugas WHERE tugas.kd_matkul = (SELECT kd_matkul FROM matkul_prak WHERE nama_matkul = matkul_name) AND jenis_tugas = 'Post Test' AND i <= tugas_count) THEN
-            SET @posttest_columns := CONCAT(@posttest_columns, ', MAX(CASE WHEN row_num = ', i, ' AND PraktikanCTE.jenis_tugas = ''Post Test'' THEN nilai_tugas END) AS posttest_', i);
-        END IF;
-        SET i = i + 1;
-    END WHILE;
-
--- THE SELECT QUERY
-SET @sql_query_select := CONCAT('
-    SELECT
-        NIM,
-        nama_lengkap,
-        semester,
-        praktikum,
-        (SELECT COALESCE(COUNT(*) * 1.25, 0) FROM kehadiran k INNER JOIN jadwal j ON k.kd_jadwal = j.kd_jadwal
-        INNER JOIN matkul_prak m ON m.kd_matkul = j.kd_matkul 
-        WHERE m.nama_matkul = ''', matkul_name, ''' AND k.keterangan = ''Hadir'' AND k.usersid = PraktikanCTE.NIM) AS kehadiran',
-        @posttest_columns,
-        ',
-        ROUND(COALESCE(@akumulasi_posttest, 0) * 0.6, 2) AS akumulasi_posttest,
-        COALESCE(MAX(CASE WHEN jenis_tugas = ''Proyek Akhir'' THEN nilai_tugas END), 0) AS proyek_akhir,
-        COALESCE((SELECT COALESCE(COUNT(*) * 1.25, 0) FROM kehadiran k INNER JOIN jadwal j ON k.kd_jadwal = j.kd_jadwal
-        INNER JOIN matkul_prak m ON m.kd_matkul = j.kd_matkul 
-        WHERE m.nama_matkul = ''', matkul_name, ''' AND k.keterangan = ''Hadir'' AND k.usersid = PraktikanCTE.NIM), 0) + 
-        ROUND(COALESCE(@akumulasi_posttest, 0) * 0.4, 2) + COALESCE(MAX(CASE WHEN PraktikanCTE.jenis_tugas = ''Proyek Akhir'' THEN nilai_tugas END * 0.6), 0) AS nilai_akhir
-    FROM PraktikanCTE
-    GROUP BY NIM, nama_lengkap, semester, praktikum;
-');
-
--- RUNNING THE SELECT QUERY
-PREPARE stmt_select FROM @sql_query_select;
-EXECUTE stmt_select;
-DEALLOCATE PREPARE stmt_select;
+INSERT INTO PraktikanCTE
+SELECT
+    users.userid AS NIM,
+    matkul_prak.kd_matkul,
+    tugas.kd_tugas AS kd_tugas,
+    users.nama AS nama_lengkap,
+    users.semester AS semester,
+    matkul_prak.nama_matkul AS praktikum,
+    COALESCE(detail_pengumpulan.nilai_tugas, 0) AS nilai_tugas,
+    nilai_akhir.nilai_akhir AS nilai_akhir,
+    tugas.jenis_tugas,
+    ROW_NUMBER() OVER (PARTITION BY users.userid, matkul_prak.kd_matkul ORDER BY detail_pengumpulan.nilai_tugas) AS row_num,
+    0 AS akumulasi_posttest -- Nilai awal untuk kolom akumulasi_posttest
+FROM users 
+    LEFT JOIN detail_pengumpulan ON users.userid = detail_pengumpulan.usersid
+    INNER JOIN nilai_akhir ON users.userid = nilai_akhir.usersid
+    INNER JOIN matkul_prak ON nilai_akhir.kd_matkul = matkul_prak.kd_matkul
+    LEFT JOIN tugas ON tugas.kd_matkul = matkul_prak.kd_matkul 
+        AND detail_pengumpulan.kd_tugas = tugas.kd_tugas -- Tambahkan kondisi ini
+WHERE users.praktikan = 1
+    AND matkul_prak.kd_matkul = matkul_code;
 
 
--- THE UPDATE QUERY
-SET @sql_query_update := CONCAT('
-    UPDATE nilai_akhir
-    SET nilai_akhir = (
+-- Inisialisasi variabel untuk akumulasi posttest
+SET @posttest_sum := 0;
+SET @posttest_count := 0;
+
+-- Dynamic column list for posttest
+SET @posttest_columns := '';
+SET i = 1;
+WHILE i <= tugas_count DO
+    IF EXISTS (
+        SELECT 1 FROM tugas 
+        WHERE tugas.kd_matkul = (SELECT kd_matkul FROM matkul_prak WHERE kd_matkul = matkul_code) 
+        AND jenis_tugas = 'Post Test' 
+        AND i <= tugas_count
+    ) THEN
+        SET @posttest_columns := CONCAT(@posttest_columns, ', COALESCE(MAX(CASE WHEN row_num = ', i, ' AND PraktikanCTE.jenis_tugas = ''Post Test'' THEN nilai_tugas END),0) AS posttest_', i);
+    END IF;
+    SET i = i + 1;
+END WHILE;
+
+-- Inisialisasi tabel sementara untuk menyimpan hasil akumulasi posttest
+CREATE TEMPORARY TABLE IF NOT EXISTS TugasAccumulation (
+    NIM CHAR(10),
+    kd_matkul VARCHAR(255),
+    posttest_sum DECIMAL(10,2),
+    posttest_count INT
+);
+
+-- Hitung nilai akumulasi posttest untuk setiap NIM dan kd_matkul
+INSERT INTO TugasAccumulation (NIM, kd_matkul, posttest_sum, posttest_count)
+SELECT 
+    NIM, 
+    kd_matkul, 
+    SUM(nilai_tugas), 
+    COUNT(nilai_tugas)
+FROM PraktikanCTE
+WHERE jenis_tugas = 'Post Test'
+GROUP BY NIM, kd_matkul;
+
+-- Perbarui kolom akumulasi_posttest dalam tabel PraktikanCTE
+UPDATE PraktikanCTE
+JOIN TugasAccumulation ON PraktikanCTE.NIM = TugasAccumulation.NIM AND PraktikanCTE.kd_matkul = TugasAccumulation.kd_matkul
+SET PraktikanCTE.akumulasi_posttest = TugasAccumulation.posttest_sum / TugasAccumulation.posttest_count;
+
+-- Hapus tabel sementara setelah digunakan
+DROP TEMPORARY TABLE IF EXISTS TugasAccumulation;
+
+    -- THE SELECT QUERY
+    SET @sql_query_select := CONCAT('
         SELECT
-            ROUND(COALESCE((SELECT COUNT(*) * 1.25 FROM kehadiran k INNER JOIN jadwal j ON k.kd_jadwal = j.kd_jadwal
+            NIM,
+            nama_lengkap,
+            semester,
+            praktikum,
+            COALESCE((SELECT COUNT(*) * 1.25 FROM kehadiran k INNER JOIN jadwal j ON k.kd_jadwal = j.kd_jadwal
             INNER JOIN matkul_prak m ON m.kd_matkul = j.kd_matkul 
-            WHERE m.nama_matkul = ''', matkul_name, ''' AND k.keterangan = ''Hadir'' AND k.usersid = PraktikanCTE.NIM), 0) + COALESCE(@akumulasi_posttest, 0) * 0.6, 2) +
-            COALESCE(MAX(CASE WHEN jenis_tugas = ''Proyek Akhir'' THEN nilai_tugas END) * 0.6, 0)
+            WHERE m.kd_matkul = ''', matkul_code, ''' AND k.status= ''Hadir'' AND k.usersid = PraktikanCTE.NIM), 0) AS kehadiran',
+            @posttest_columns,
+            ',
+            ROUND(COALESCE(akumulasi_posttest, 0) * 0.4, 2) AS akumulasi_posttest,
+            COALESCE(MAX(CASE WHEN jenis_tugas = ''Proyek Akhir'' THEN nilai_tugas END), 0) AS proyek_akhir,
+            COALESCE((SELECT COUNT(*) * 1.25 FROM kehadiran k INNER JOIN jadwal j ON k.kd_jadwal = j.kd_jadwal
+            INNER JOIN matkul_prak m ON m.kd_matkul = j.kd_matkul 
+            WHERE m.kd_matkul = ''', matkul_code, ''' AND k.status= ''Hadir'' AND k.usersid = PraktikanCTE.NIM), 0) + 
+            ROUND(COALESCE(akumulasi_posttest, 0) * 0.4, 2) + COALESCE(MAX(CASE WHEN PraktikanCTE.jenis_tugas = ''Proyek Akhir'' THEN nilai_tugas END * 0.6), 0) AS nilai_akhir
         FROM PraktikanCTE
-        WHERE nilai_akhir.kd_matkul = (SELECT kd_matkul FROM matkul_prak WHERE nama_matkul = ''', matkul_name, ''')
-        AND nilai_akhir.usersid = PraktikanCTE.NIM
-        GROUP BY NIM, nama_lengkap, semester, praktikum
-    )
-    WHERE nilai_akhir.kd_matkul = (SELECT kd_matkul FROM matkul_prak WHERE nama_matkul = ''', matkul_name, ''');
-');
+        GROUP BY NIM, nama_lengkap, semester, praktikum;
+    ');
 
--- RUNNING THE UPDATE QUERY
-PREPARE stmt_update FROM @sql_query_update;
-EXECUTE stmt_update;
-DEALLOCATE PREPARE stmt_update;
+    -- RUNNING THE SELECT QUERY
+    PREPARE stmt_select FROM @sql_query_select;
+    EXECUTE stmt_select;
+    DEALLOCATE PREPARE stmt_select;
 
 
+    -- THE UPDATE QUERY
+    SET @sql_query_update := CONCAT('
+        UPDATE nilai_akhir
+        SET nilai_akhir = (
+            SELECT
+                ROUND(COALESCE((SELECT COUNT(*) * 1.25 FROM kehadiran k INNER JOIN jadwal j ON k.kd_jadwal = j.kd_jadwal
+                INNER JOIN matkul_prak m ON m.kd_matkul = j.kd_matkul 
+                WHERE m.kd_matkul = ''', matkul_code, ''' AND k.status= ''Hadir'' AND k.usersid = PraktikanCTE.NIM), 0) + COALESCE(akumulasi_posttest, 0) * 0.4, 2) +
+                COALESCE(MAX(CASE WHEN jenis_tugas = ''Proyek Akhir'' THEN nilai_tugas END) * 0.6, 0)
+            FROM PraktikanCTE
+            WHERE nilai_akhir.kd_matkul = (SELECT kd_matkul FROM matkul_prak WHERE kd_matkul = ''', matkul_code, ''')
+            AND nilai_akhir.usersid = PraktikanCTE.NIM
+            GROUP BY NIM, nama_lengkap, semester, praktikum
+        )
+        WHERE nilai_akhir.kd_matkul = (SELECT kd_matkul FROM matkul_prak WHERE kd_matkul = ''', matkul_code, ''');
+    ');
 
-
+    -- RUNNING THE UPDATE QUERY
+    PREPARE stmt_update FROM @sql_query_update;
+    EXECUTE stmt_update;
+    DEALLOCATE PREPARE stmt_update;
 
     -- Drop temporary table after use
     DROP TEMPORARY TABLE IF EXISTS PraktikanCTE;
 END$$
 
-DROP PROCEDURE IF EXISTS `detail_praktikan`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `detail_praktikan` (IN `nomor_induk_mhs` CHAR(10))   BEGIN
     WITH data_praktikan AS (
         SELECT
@@ -171,7 +193,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `detail_praktikan` (IN `nomor_induk_
     ORDER BY NIM ASC, praktikum ASC;
 END$$
 
-DROP PROCEDURE IF EXISTS `jadwal`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `jadwal` ()   BEGIN
     WITH lihat_jadwal AS (
         SELECT 
@@ -195,11 +216,7 @@ DELIMITER ;
 --
 -- Struktur dari tabel `detail_pengumpulan`
 --
--- Pembuatan: 05 Feb 2024 pada 15.01
--- Pembaruan terakhir: 05 Feb 2024 pada 15.26
---
 
-DROP TABLE IF EXISTS `detail_pengumpulan`;
 CREATE TABLE `detail_pengumpulan` (
   `id` int(11) NOT NULL,
   `usersid` char(20) NOT NULL,
@@ -216,36 +233,14 @@ CREATE TABLE `detail_pengumpulan` (
 
 INSERT INTO `detail_pengumpulan` (`id`, `usersid`, `kd_tugas`, `tanggal_dikumpul`, `link_tugas`, `nilai_tugas`, `file_path`) VALUES
 (1, '2209116004', 'qwertyuiop', '2024-01-11 16:53:45', 'Ini Link Tugas', 90, NULL),
-(2, '2209116054', 'poiuytrewq', '2024-01-11 16:54:17', 'Ini File Tugas', 90, NULL),
-(3, '2209116004', 'asdfghjkll', '2024-01-12 18:14:08', 'Ini Filenya', 95, NULL),
-(61, '2209116004', 'qwertyuiop', '2024-02-05 22:28:09', 'ini filenya', 0, 'uploads\\Dispensasi DBON.pdf'),
-(62, '2209116004', 'qwertyuiop', '2024-02-05 22:37:01', 'ini filenya', 0, 'uploads\\Dispensasi DBON.pdf'),
-(63, '2209116004', 'qwertyuiop', '2024-02-05 22:37:22', 'ini filenya', 0, 'uploads\\Dispensasi DBON.pdf'),
-(64, '2209116004', 'qwertyuiop', '2024-02-05 22:49:04', 'ini filenya', 0, 'uploads\\Dispensasi DBON.pdf'),
-(65, '2209116004', 'qwertyuiop', '2024-02-05 22:49:04', 'ini filenya', 0, 'uploads\\Dispensasi DBON.pdf'),
-(66, '2209116004', 'qwertyuiop', '2024-02-05 23:01:56', NULL, 0, 'uploads\\Dispensasi DBON.pdf'),
-(67, '2209116004', 'qwertyuiop', '2024-02-05 23:12:29', 'http://hoho', 0, NULL),
-(68, '2209116004', 'qwertyuiop', '2024-02-05 23:12:29', NULL, 0, NULL),
-(69, '2209116004', 'qwertyuiop', '2024-02-05 23:13:48', NULL, 0, NULL),
-(70, '2209116004', 'qwertyuiop', '2024-02-05 23:14:09', NULL, 0, NULL),
-(71, '2209116004', 'qwertyuiop', '2024-02-05 23:14:39', NULL, 0, NULL),
-(72, '2209116004', 'qwertyuiop', '2024-02-05 23:15:35', NULL, 0, NULL),
-(73, '2209116004', 'qwertyuiop', '2024-02-05 23:16:26', NULL, 0, NULL),
-(74, '2209116004', 'qwertyuiop', '2024-02-05 23:18:10', NULL, 0, 'uploads\\Dispensasi DBON.pdf'),
-(75, '2209116004', 'qwertyuiop', '2024-02-05 23:18:10', 'http://hoho', 0, NULL),
-(76, '2209116004', 'qwertyuiop', '2024-02-05 23:21:04', 'http://hoho', 0, NULL),
-(77, '2209116004', 'qwertyuiop', '2024-02-05 23:21:20', NULL, 0, 'uploads\\Dispensasi DBON.pdf'),
-(78, '2209116004', 'qwertyuiop', '2024-02-05 23:26:52', NULL, 0, 'uploads\\Dispensasi wasit atau juri.pdf');
+(2, '2209116054', 'poiuytrewq', '2024-01-11 16:54:17', 'Ini File Tugas', 90, NULL);
 
 -- --------------------------------------------------------
 
 --
 -- Struktur dari tabel `informasi`
 --
--- Pembuatan: 24 Jan 2024 pada 17.16
---
 
-DROP TABLE IF EXISTS `informasi`;
 CREATE TABLE `informasi` (
   `kd_informasi` char(5) NOT NULL,
   `tanggal` datetime NOT NULL,
@@ -362,11 +357,7 @@ INSERT INTO `informasi` (`kd_informasi`, `tanggal`, `judul_informasi`, `deskrips
 --
 -- Struktur dari tabel `jadwal`
 --
--- Pembuatan: 24 Jan 2024 pada 17.16
--- Pembaruan terakhir: 05 Feb 2024 pada 14.52
---
 
-DROP TABLE IF EXISTS `jadwal`;
 CREATE TABLE `jadwal` (
   `kd_jadwal` char(10) NOT NULL,
   `tanggal` date NOT NULL,
@@ -398,10 +389,7 @@ INSERT INTO `jadwal` (`kd_jadwal`, `tanggal`, `waktu_mulai`, `waktu_selesai`, `k
 --
 -- Struktur dari tabel `kehadiran`
 --
--- Pembuatan: 26 Jan 2024 pada 17.45
---
 
-DROP TABLE IF EXISTS `kehadiran`;
 CREATE TABLE `kehadiran` (
   `id` int(11) NOT NULL,
   `usersid` char(20) NOT NULL,
@@ -423,11 +411,7 @@ INSERT INTO `kehadiran` (`id`, `usersid`, `kd_jadwal`, `status`, `keterangan`) V
 --
 -- Struktur dari tabel `matkul_prak`
 --
--- Pembuatan: 24 Jan 2024 pada 17.16
--- Pembaruan terakhir: 05 Feb 2024 pada 14.51
---
 
-DROP TABLE IF EXISTS `matkul_prak`;
 CREATE TABLE `matkul_prak` (
   `kd_matkul` char(10) NOT NULL,
   `nama_matkul` varchar(100) NOT NULL
@@ -449,10 +433,7 @@ INSERT INTO `matkul_prak` (`kd_matkul`, `nama_matkul`) VALUES
 --
 -- Struktur dari tabel `nilai_akhir`
 --
--- Pembuatan: 26 Jan 2024 pada 17.42
---
 
-DROP TABLE IF EXISTS `nilai_akhir`;
 CREATE TABLE `nilai_akhir` (
   `id` int(11) NOT NULL,
   `usersid` char(20) NOT NULL,
@@ -465,13 +446,12 @@ CREATE TABLE `nilai_akhir` (
 --
 
 INSERT INTO `nilai_akhir` (`id`, `usersid`, `kd_matkul`, `nilai_akhir`) VALUES
-(1, '2209116004', '1909036023', 0.00),
-(2, '2209116054', '1909036021', 55.25),
+(1, '2209116004', '1909036023', 37.25),
+(2, '2209116054', '1909036021', 54.00),
 (3, '2209116006', '1909036050', 0.00),
 (4, '2209116006', '1909036021', 0.00),
 (5, '2209116006', '1909036023', 0.00),
-(6, '2209116004', '1909036021', 57.00),
-(7, '2209116054', '1909036023', 0.00),
+(6, '2209116004', '1909036021', 54.00),
 (8, '2209116004', '1909036050', 0.00),
 (9, '2209116054', '1909036020', 0.00),
 (10, '2209116004', '1909036020', 0.00),
@@ -482,10 +462,7 @@ INSERT INTO `nilai_akhir` (`id`, `usersid`, `kd_matkul`, `nilai_akhir`) VALUES
 --
 -- Struktur dari tabel `tugas`
 --
--- Pembuatan: 24 Jan 2024 pada 17.16
---
 
-DROP TABLE IF EXISTS `tugas`;
 CREATE TABLE `tugas` (
   `kd_tugas` char(10) NOT NULL,
   `jenis_tugas` enum('Post Test','Proyek Akhir') NOT NULL,
@@ -503,18 +480,14 @@ CREATE TABLE `tugas` (
 INSERT INTO `tugas` (`kd_tugas`, `jenis_tugas`, `nama_tugas`, `deskripsi_tugas`, `tanggal_dibuat`, `tanggal_pengumpulan`, `kd_matkul`) VALUES
 ('asdfghjkll', 'Post Test', 'Post Test 2 - Web', 'Kerjakan', '2024-01-12 18:13:46', '2024-01-12 18:13:46', '1909036023'),
 ('poiuytrewq', 'Proyek Akhir', 'Proyek Akhir - Data Mining', 'Kerjakan PA ini!!!', '2024-01-11 16:50:43', '2024-01-18 23:50:43', '1909036021'),
-('qwertyuiop', 'Post Test', 'Post Test 1 - Web', 'Buatlah web portofolio sederhana dengan HTML dan CSS saja!!!', '2024-01-11 16:50:43', '2024-01-18 23:50:43', '1909036023'),
-('VyQ0nYL2RQ', 'Post Test', 'Post Test 2 - Web', 'Kerjakan', '2024-01-12 18:13:46', '2024-01-12 18:13:46', '1909036023');
+('qwertyuiop', 'Post Test', 'Post Test 1 - Web', 'Buatlah web portofolio sederhana dengan HTML dan CSS saja!!!', '2024-01-11 16:50:43', '2024-01-18 23:50:43', '1909036023');
 
 -- --------------------------------------------------------
 
 --
 -- Struktur dari tabel `users`
 --
--- Pembuatan: 24 Jan 2024 pada 17.16
---
 
-DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `userid` char(20) NOT NULL,
   `password` varchar(100) NOT NULL,
@@ -536,6 +509,7 @@ INSERT INTO `users` (`userid`, `password`, `nama`, `email`, `semester`, `praktik
 ('198612182019031007', 'password909', 'Hario Jati Setyadi, S.Kom., M.Kom', 'hariojati.setyadi@ft.unmul.ac.id', 'Genap 2023/2024', 0, 0, 1, '1909036050'),
 ('199202122020121009', 'password098', 'Amin Padmo Azam Masa, S.Kom., M.Cs.', 'aminpadmo@ft.unmul.ac.id', 'Genap 2023/2024', 0, 0, 1, '1909036020'),
 ('199508272022031003', 'password567', 'Akhmad Irsyad S.T.,M.Kom', 'akhmadirsyad@ft.unmul.ac.id', 'Genap 2023/2024', 0, 0, 1, '1909036021'),
+('2109116017', 'password000', 'Nur Inayah', 'nayanay@gmail.com', 'Genap 2023/2024', 1, 0, 0, NULL),
 ('2109116038', 'password000', 'Raihan Daiva Geralda', 'daivadai@gmail.com', 'daivadai@gmail.com', 1, 0, 0, NULL),
 ('2109116058', 'password987', 'Firzian Caesar Ananta', 'firzianfir@gmail.com', 'Genap 2023/2024', 0, 1, 0, '1909036020'),
 ('2109116068', 'password123', 'Wahyu Kesuma Bakti', 'kambingsegitiga@gmail.com', 'Genap 2023/2024', 0, 1, 0, '1909036021'),
@@ -615,7 +589,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT untuk tabel `detail_pengumpulan`
 --
 ALTER TABLE `detail_pengumpulan`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=79;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=83;
 
 --
 -- AUTO_INCREMENT untuk tabel `kehadiran`
