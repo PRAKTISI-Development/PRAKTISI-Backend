@@ -44,33 +44,24 @@ def get_akumulasi(request, kd_matkul: str, db: Session = Depends(get_db)):
 
 def save_excel(request, kd_matkul: str, db: Session = Depends(get_db)):
     try:
-        # Eksekusi query
         query = text(f"call akumulasi_nilai_dan_kehadiran('{kd_matkul}')")
         result = db.execute(query)
 
-        # Ambil data dan nama kolom
         data = result.fetchall()
         column_names = result.keys()
 
-        # Buat DataFrame dari hasil query
         df = pd.DataFrame(data, columns=column_names)
 
-        # Ambil nilai praktikum
-        praktikum_value = data[0][list(column_names).index('praktikum')]
-
-        # Buat file Excel dalam bentuk buffer
         excel_buffer = BytesIO()
         df.to_excel(excel_buffer, index=False)
         excel_buffer.seek(0)
 
-        # Buat response StreamingResponse
         response = StreamingResponse(iter([excel_buffer.getvalue()]), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
-
-        # Atur header Content-Disposition dengan nama file
+    
+        praktikum_value = data[0][list(column_names).index('praktikum')]
         filename = f"Akumulasi {praktikum_value}.xlsx"
         response.headers["Content-Disposition"] = f"attachment; filename={filename}"
 
-        # Atur Refresh header untuk redirect setelah download
         redirect_url = f"/v1/nilai_akhir/akumulasi/{kd_matkul}"
         response.headers["Refresh"] = f"1; url={redirect_url}"
 
