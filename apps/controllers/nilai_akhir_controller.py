@@ -1,11 +1,15 @@
-from fastapi import HTTPException, Depends
-from sqlalchemy.orm import Session
-from sqlalchemy import text
-from apps.database import get_db
-from apps.models.nilai_akhir import NilaiAkhir as NilaiAkhirModel
-from apps.schemas.nilai_akhir_schema import NilaiAkhirSchema
-from apps.schemas.akumulasi_schema import *
 import pandas as pd
+from io import BytesIO
+from sqlalchemy import text
+from sqlalchemy.orm import Session
+from fastapi import HTTPException, Depends
+from fastapi.responses import StreamingResponse
+
+from apps.database import get_db
+from apps.helpers.response import response
+from apps.schemas.akumulasi_schema import *
+from apps.schemas.nilai_akhir_schema import NilaiAkhirSchema
+from apps.models.nilai_akhir import NilaiAkhir as NilaiAkhirModel
 
 def create_nilai_akhir(nilai_akhir_data: NilaiAkhirSchema, db: Session = Depends(get_db)):
     db_nilai_akhir = NilaiAkhirModel(**nilai_akhir_data.model_dump())
@@ -16,27 +20,50 @@ def create_nilai_akhir(nilai_akhir_data: NilaiAkhirSchema, db: Session = Depends
 
 
 # on progress
-def get_akumulasi(kd_matkul:str,db:Session=Depends(get_db)):
+def get_akumulasi(request, kd_matkul: str, db: Session = Depends(get_db)):
     try:
         params = kd_matkul
         query = text(f"call akumulasi_nilai_dan_kehadiran('{params}')")
         result = db.execute(query)
-        save_excel(result)
+        
+        data_rows = result.fetchall()
+        column_names = result.keys()
 
-    except Exception as e:
-        print(e)
+        list_of_dicts = []
 
-def save_excel(result):
+        for row in data_rows:
+            data_dict = {}
+            for column_name, value in zip(column_names, row):
+                data_dict[column_name] = value
+            list_of_dicts.append(data_dict)
+
+        return response(request, status_code=200, success=True, msg="success get data", data=list_of_dicts)
+
+    except HTTPException as e:
+        return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
+
+def save_excel(request, kd_matkul: str, db: Session = Depends(get_db)):
     try:
-        df = pd.DataFrame(result.fetchall(),columns=result.keys())
-        # Simpan DataFrame ke file Excel
-        excel_filename = 'hasil_query.xlsx'
-        df.to_excel(excel_filename, index=False)
+        params = kd_matkul
+        query = text(f"call akumulasi_nilai_dan_kehadiran('{params}')")
+        result = db.execute(query)
 
-        print(f"DataFrame telah disimpan ke file Excel: {excel_filename}")
+        df = pd.DataFrame(result.fetchall(), columns=result.keys())
 
-    except Exception as e:
-        print(e)
+        excel_buffer = BytesIO()
+        df.to_excel(excel_buffer, index=False)
+        excel_buffer.seek(0)
+
+        response = StreamingResponse(iter([excel_buffer.getvalue()]), media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")
+
+        response.headers["Content-Disposition"] = "attachment; filename=hasil_query.xlsx"
+
+        redirect_url = f"/v1/nilai_akhir/akumulasi/{kd_matkul}"
+        response.headers["Refresh"] = f"1; url={redirect_url}"
+        return response
+    
+    except HTTPException as e:
+        return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
 # end progress
 
 

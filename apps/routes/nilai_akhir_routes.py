@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends,Request
 from sqlalchemy.orm import Session
+
 from apps.database import get_db
 from apps.controllers.nilai_akhir_controller import *
 from apps.helpers.response import response
@@ -18,9 +19,12 @@ async def create_nilai_akhir_endpoint(nilai_akhir_data: NilaiAkhirSchema, db: Se
 
 #on progress
 @router.get("/akumulasi/{kd_matkul}")
-async def read_nilai_akhir(kd_matkul:str, db: Session = Depends(get_db)):
-    print(kd_matkul)
-    return get_akumulasi(kd_matkul, db)
+async def read_nilai_akhir(request:Request,kd_matkul:str, db: Session = Depends(get_db)):
+    return get_akumulasi(request,kd_matkul, db)
+
+@router.get("/akumulasi/{kd_matkul}/download")
+async def read_nilai_akhir(request:Request,kd_matkul:str, db: Session = Depends(get_db)):
+    return save_excel(request,kd_matkul, db)
 #end progress
 
 
