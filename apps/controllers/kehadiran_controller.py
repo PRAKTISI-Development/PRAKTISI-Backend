@@ -4,6 +4,8 @@ from apps.database import get_db
 from apps.models.kehadiran import Kehadiran as KehadiranModel
 from apps.schemas.kehadiran_schema import KehadiranSchema
 from sqlalchemy.orm import attributes
+from apps.helpers.response import response
+
 
 def create_kehadiran(request, kehadiran_data: KehadiranSchema, db: Session = Depends(get_db)):
     db_kehadiran = KehadiranModel(**kehadiran_data.model_dump())
@@ -12,9 +14,7 @@ def create_kehadiran(request, kehadiran_data: KehadiranSchema, db: Session = Dep
     db.commit()
     db.refresh(db_kehadiran)
 
-    # instance_dict = attributes.instance_dict(db_kehadiran)
-    # instance_dict.pop('_sa_instance_state', None)
-    return db_kehadiran
+    return response(request, status_code=200, success=True, msg="User dinyatakan hadir!", data=db_kehadiran)
 
 def get_kehadiran(request: Request, usersid: str, kd_matkul: str, pertemuan: int, db: Session = Depends(get_db)):
     kehadiran = db.query(KehadiranModel).filter(

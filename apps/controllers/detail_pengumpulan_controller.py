@@ -8,27 +8,21 @@ from apps.middleware.validation import file_validation
 
 def create_detail_pengumpulan(request, detail_pengumpulan_data, db):
     try:
-        # Get the model_dump dictionary
         model_dump_dict = detail_pengumpulan_data.model_dump()
 
-        # Exclude the 'file' attribute if present
         model_dict = {key: value for key, value in model_dump_dict.items() if key != 'file'}
 
-        # Process file upload if there is a file
         if detail_pengumpulan_data.file:
             file_validation(detail_pengumpulan_data.file)
             file_paths = save_uploaded_file(detail_pengumpulan_data.file)
             model_dict['file_path'] = file_paths
 
-        # Create instance of DetailPengumpulanModel
         db_detail_pengumpulan = DetailPengumpulanModel(**model_dict)
 
-        # Save to database
         db.add(db_detail_pengumpulan)
         db.commit()
         db.refresh(db_detail_pengumpulan)
 
-        # Adjustments for response
         db_detail_pengumpulan.tanggal_dikumpul = db_detail_pengumpulan.tanggal_dikumpul.isoformat()
         db_detail_pengumpulan.file_path = file_paths if file_paths else None
 

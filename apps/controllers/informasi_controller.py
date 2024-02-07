@@ -5,7 +5,6 @@ from apps.helpers.response import response
 
 def create_informasi(request, informasi_data, db):
     try:
-        # Generate ID
         informasi_data.kd_informasi = identity_generator()
 
         db_informasi = InformasiModel(**informasi_data.dict())
@@ -13,7 +12,6 @@ def create_informasi(request, informasi_data, db):
         db.commit()
         db.refresh(db_informasi)
 
-        # Adjustments for response
         db_informasi.tanggal = db_informasi.tanggal.isoformat()
 
         return response(request, status_code=201, success=True, msg="Successfully created", data=db_informasi)
