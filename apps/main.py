@@ -24,7 +24,6 @@ app.add_middleware(
 
 @app.get('/')
 def root():
-    message = "Endpoint Not Found"
     return RedirectResponse(url='/redocs', status_code=303)
 
 Base.metadata.create_all(bind=engine)

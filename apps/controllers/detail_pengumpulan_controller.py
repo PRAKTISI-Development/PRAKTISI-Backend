@@ -3,8 +3,9 @@ from apps.models.detail_pengumpulan import DetailPengumpulan as DetailPengumpula
 from functools import lru_cache
 from apps.helpers.response import response
 import os
-from fastapi import UploadFile
+
 from apps.middleware.validation import file_validation
+from apps.helpers.file_upload import save_uploaded_file 
 
 def create_detail_pengumpulan(request, detail_pengumpulan_data, db):
     try:
@@ -31,19 +32,6 @@ def create_detail_pengumpulan(request, detail_pengumpulan_data, db):
     except HTTPException as e:
         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
 
-def save_uploaded_file(file: UploadFile):
-    upload_folder = "uploads"
-    if not os.path.exists(upload_folder):
-        os.makedirs(upload_folder)
-
-    file_path = os.path.join(upload_folder, file.filename)
-
-    with open(file_path, "wb") as f:
-        f.write(file.file.read())
-
-    return file_path
-
-    
 @lru_cache
 def get_detail_pengumpulan(request, usersid: str, kd_tugas: str, db):
     try:
