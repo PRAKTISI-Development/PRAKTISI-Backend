@@ -1,15 +1,8 @@
-from typing import Any, Dict,List
+from typing import Any, Dict
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import attributes
 from fastapi import Request
-from pydantic import BaseModel
-from typing import Optional
-
-class ResponseModel(BaseModel):
-    status_code: int
-    success: bool
-    msg: str
-    data: Optional[Any] = None
+from apps.schemas.response_schema import Response
 
 def response(request: Request, status_code: int, success: bool, msg: str, data: Any = None) -> Dict[str, Any]:
     """
@@ -25,7 +18,7 @@ def response(request: Request, status_code: int, success: bool, msg: str, data: 
     Returns:
         JSON or Dict: Standardized response JSON or dictionary.
     """
-    response_dict = ResponseModel(
+    response_dict = Response(
         status_code= status_code,
         success= success,
         msg= msg,

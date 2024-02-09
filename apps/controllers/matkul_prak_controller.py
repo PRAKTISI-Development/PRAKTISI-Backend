@@ -10,7 +10,7 @@ def create_matkul_prak(request, matkul_prak_data, db):
         db.commit()
         db.refresh(db_matkul_prak)
 
-        return response(request, status_code=201, success=True,msg="Successfully Created", data=db_matkul_prak)
+        return response(request, status_code=201, success=True,msg="Successfully Created!", data=db_matkul_prak)
     
     except HTTPException as e:
         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
@@ -20,9 +20,9 @@ def get_matkul_prak(request, kd_matkul: str, db):
         matkul_prak = db.query(MatkulPrakModel).filter(MatkulPrakModel.kd_matkul == kd_matkul).first()
         
         if matkul_prak is None:
-            raise HTTPException(status_code=404, detail="Matkul Prak not found")
+            raise HTTPException(status_code=404, detail="Mata Kuliah Praktikum not found")
         
-        return response(request,status_code=200, success=True, msg="Matkul ditemukan", data=matkul_prak)
+        return response(request,status_code=200, success=True, msg="Mata Kuliah Praktikum ditemukan", data=matkul_prak)
     except HTTPException as e:
         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
 
@@ -30,7 +30,7 @@ def get_all_matkul_prak(request, db):
     try :
         matkul_prak_list = db.query(MatkulPrakModel).all()
 
-        return response(request,status_code=200, success=True, msg="Matkul ditemukan", data=matkul_prak_list)
+        return response(request,status_code=200, success=True, msg="Mata Kuliah Praktikum ditemukan", data=matkul_prak_list)
     
     except HTTPException as e:
         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)    
@@ -40,7 +40,7 @@ def update_matkul_prak(request, matkul_prak_data: MatkulPrakModel, kd_matkul: st
         db_matkul_prak = db.query(MatkulPrakModel).filter(MatkulPrakModel.kd_matkul == kd_matkul).first()
         
         if db_matkul_prak is None:
-            raise HTTPException(status_code=404, detail="Matkul Prak not found")
+            raise HTTPException(status_code=404, detail="Mata Kuliah Praktikum not found")
         
         for key, value in matkul_prak_data.dict().items():
             if key != "kd_matkul":
@@ -48,7 +48,7 @@ def update_matkul_prak(request, matkul_prak_data: MatkulPrakModel, kd_matkul: st
         
         db.commit()
         db.refresh(db_matkul_prak)
-        return response(request,status_code=200, success=True, msg="Berhasil memperbarui Jadwal", data=db_matkul_prak)
+        return response(request,status_code=200, success=True, msg="Berhasil memperbarui Mata Kuliah Praktikum", data=db_matkul_prak)
     
     except HTTPException as e:
         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
@@ -58,10 +58,10 @@ def delete_matkul_prak(request, kd_matkul: str, db):
         db_matkul_prak = db.query(MatkulPrakModel).filter(MatkulPrakModel.kd_matkul == kd_matkul).first()
         
         if db_matkul_prak is None:
-            raise HTTPException(status_code=404, detail="Matkul Prak not found")
+            raise HTTPException(status_code=404, detail="Mata Kuliah Praktikum not found")
 
         db.delete(db_matkul_prak)
         db.commit()
-        return response(request,status_code=200, success=True, msg="Matkul berhasil dihapus", data=None)
+        return response(request,status_code=200, success=True, msg="Mata Kuliah Praktikum berhasil dihapus", data=None)
     except HTTPException as e:
         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)

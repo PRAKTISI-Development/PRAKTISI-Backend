@@ -12,7 +12,6 @@ def create_tugas(request, tugas_data, db):
         db.commit()
         db.refresh(db_tugas)
 
-        #Adjustments for response
         db_tugas.tanggal_dibuat = db_tugas.tanggal_dibuat.isoformat()
         db_tugas.tanggal_pengumpulan = db_tugas.tanggal_pengumpulan.isoformat()
 

@@ -7,7 +7,7 @@ mysql-connector-python
 passlib
 PyJWT
 pymysql
-jinja2
 mysql-client
 requests
 python-multipart
+pandas
