@@ -6,8 +6,8 @@ class StatusEnum(str, Enum):
     Tidak_Hadir = 'Tidak Hadir'
 
 class KehadiranSchema(BaseModel):
-    usersid: str
-    kd_jadwal: str
+    usersid: str = None
+    kd_jadwal: str = None
     status: StatusEnum
     keterangan: str
 
