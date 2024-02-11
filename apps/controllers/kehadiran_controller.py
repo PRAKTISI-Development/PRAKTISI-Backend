@@ -1,7 +1,8 @@
 from fastapi import HTTPException
+from fastapi.responses import JSONResponse
 from apps.models.kehadiran import Kehadiran as KehadiranModel
 from apps.helpers.response import response
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, subqueryload, undefer
 from apps.models.jadwal import Jadwal as JadwalModel
 
 def create_kehadiran(request, kehadiran_data, db):
@@ -31,18 +32,38 @@ def get_kehadiran(request, usersid, kd_jadwal, db):
     except HTTPException as e:
         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
 
+# def get_all_kehadiran(request, db):
+#     try:
+#         kehadiran_list = db.query(KehadiranModel).all()
+#         kehadiran_list = (
+#             db.query(KehadiranModel)
+#             .options(joinedload(KehadiranModel.jadwal).joinedload(JadwalModel.matkul_prak)) # Memuat data Jadwal bersamaan dengan Kehadiran
+#             .all()
+#         )
+#         return response(request, status_code=200, success=True, msg="Kehadiran ditemukan", data=kehadiran_list)
+    
+#     except HTTPException as e:
+#         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
 def get_all_kehadiran(request, db):
     try:
-        kehadiran_list = db.query(KehadiranModel).all()
         # kehadiran_list = (
         #     db.query(KehadiranModel)
-        #     .options(joinedload(KehadiranModel.jadwal).joinedload(JadwalModel.matkul_prak))  # Memuat data Jadwal bersamaan dengan Kehadiran
+        #     .join(JadwalModel, KehadiranModel.kd_jadwal == JadwalModel.kd_jadwal)
+        #     .with_entities(KehadiranModel, JadwalModel.kd_jadwal)
         #     .all()
         # )
+        kehadiran_list = (
+            db.query(KehadiranModel)
+            .options(subqueryload(KehadiranModel.jadwal).undefer(JadwalModel.kd_matkul))
+            .all()
+        )
+        print(kehadiran_list)
+        # print(KehadiranModel(**dict(kehadiran_list).model_dump()))
         return response(request, status_code=200, success=True, msg="Kehadiran ditemukan", data=kehadiran_list)
     
     except HTTPException as e:
         return response(request, status_code=e.status_code, success=False, msg=e.detail, data=None)
+
 
 def update_kehadiran(request, kehadiran_data, usersid, kd_jadwal, db):
     try:
