@@ -1,7 +1,6 @@
 from pydantic import BaseModel, Field
-from typing import Optional, Dict
+from typing import Optional
 
-#on progress
 class StudentSchema(BaseModel):
     NIM: Optional[str]
     nama_lengkap: Optional[str]

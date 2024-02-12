@@ -21,20 +21,3 @@ def file_validation(file: UploadFile):
 
     file.file.seek(0)
     return True
-
-
-def check_user_role(user: dict) -> dict:
-    role_info = {}
-
-    if user.get('praktikan') and user.get('asisten_laboratorium') and len(user.get('userid', '')) == 10:
-        role_info['status'] = 'asisten_laboratorium dan praktikan'
-    elif user.get('praktikan') and len(user.get('userid', '')) == 10:
-        role_info['status'] = 'praktikan'
-    elif user.get('asisten_laboratorium'):
-        role_info['status'] = 'asisten_laboratorium'
-    elif user.get('dosen') and len(user.get('userid', '')) > 10:
-        role_info['status'] = 'dosen'
-    elif len(user.get('userid', '')) == 10:
-        role_info['status'] = 'praktikan'
-
-    return role_info

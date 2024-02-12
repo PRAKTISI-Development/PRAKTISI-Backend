@@ -14,7 +14,7 @@ class TugasSchema(BaseModel):
     deskripsi_tugas: str
     tanggal_dibuat: datetime
     tanggal_pengumpulan: datetime
-    kd_matkul: str
+    kd_matkul: str = None
 
     class Config:
         orm_mode = True

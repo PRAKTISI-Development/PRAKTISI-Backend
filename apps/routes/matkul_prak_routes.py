@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Request, Depends
 from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.controllers.matkul_prak_controller import *

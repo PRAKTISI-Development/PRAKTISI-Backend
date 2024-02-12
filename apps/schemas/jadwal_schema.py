@@ -1,6 +1,5 @@
 from datetime import date, time
 from pydantic import BaseModel
-from typing import Optional
 from apps.helpers.generator import identity_generator
 
 class JadwalSchema(BaseModel):
@@ -11,7 +10,7 @@ class JadwalSchema(BaseModel):
     kelas: str
     ruangan: str
     materi: str
-    kd_matkul: str
+    kd_matkul: str = None
 
     class Config:
         orm_mode = True

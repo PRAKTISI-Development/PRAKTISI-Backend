@@ -1,6 +1,5 @@
 from datetime import datetime
 from pydantic import BaseModel
-from typing import Optional
 from apps.helpers.generator import identity_generator
 
 class InformasiSchema(BaseModel):
@@ -9,7 +8,7 @@ class InformasiSchema(BaseModel):
     judul_informasi: str
     deskripsi_informasi: str
     tautan: str
-    usersid: str
+    usersid: str = None
 
     class Config:
         orm_mode = True

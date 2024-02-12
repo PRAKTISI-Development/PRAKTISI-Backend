@@ -1,12 +1,12 @@
 from pydantic import BaseModel, Field
 from typing import Optional
-from fastapi import File, UploadFile, Form
+from fastapi import UploadFile, File, Form
 
 class DetailPengumpulanSchema(BaseModel):
     usersid: str
     kd_tugas: str
-    link_tugas: Optional[str] = Field(None,alias='link_tugas')
-    file: Optional[UploadFile] = Field(None,alias='file')
+    link_tugas: Optional[str] = Field(None, alias='link_tugas')
+    file: Optional[UploadFile] = Field(None, alias='file')
     file_path: Optional[str] = Field(None, alias="file_path")
 
     @classmethod

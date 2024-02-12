@@ -12,20 +12,24 @@ async def create_nilai_akhir_endpoint(request: Request, nilai_akhir_data: NilaiA
     return create_nilai_akhir(request, nilai_akhir_data, db)
 
 @router.get("/{kd_matkul}")
-async def read_akumulasi(request:Request, kd_matkul:str, db: Session = Depends(get_db)):
-    return get_akumulasi(request, kd_matkul, db)
+async def read_akumulasi(request: Request, kd_matkul:str, db: Session = Depends(get_db)):
+    akumulasi = get_akumulasi(request, kd_matkul, db)
+    return akumulasi
 
 @router.get("/{kd_matkul}/download")
-async def read_download_akumulasi(request:Request, kd_matkul:str, db: Session = Depends(get_db)):
-    return get_download(request, kd_matkul, db)
+async def read_download_akumulasi(request: Request, kd_matkul:str, db: Session = Depends(get_db)):
+    file = get_download(request, kd_matkul, db)
+    return file
 
 @router.get("/{usersid}/{kd_matkul}")
 async def read_nilai_akhir_endpoint(request: Request, usersid: str, kd_matkul: str, db: Session = Depends(get_db)):
-    return get_nilai_akhir(request, usersid, kd_matkul, db)
+    nilai_akhir = get_nilai_akhir(request, usersid, kd_matkul, db)
+    return nilai_akhir
     
 @router.get("/")
 async def read_all_nilai_akhir_endpoint(request: Request, db: Session = Depends(get_db)):
-    return get_all_nilai_akhir(request, db)
+    nilai_akhir = get_all_nilai_akhir(request, db)
+    return nilai_akhir
     
 @router.put("/{usersid}/{kd_matkul}")
 async def update_nilai_akhir_endpoint(request: Request, nilai_akhir_data: NilaiAkhirSchema, usersid: str = Path(...), kd_matkul: str = Path(...), db: Session = Depends(get_db)):

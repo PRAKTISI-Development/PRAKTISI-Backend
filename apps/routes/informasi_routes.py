@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Request, Depends
 from sqlalchemy.orm import Session
 from apps.database import get_db
 from apps.controllers.informasi_controller import *
@@ -12,11 +12,13 @@ def create_informasi_endpoint(request: Request, informasi_data: InformasiSchema,
 
 @router.get("/{kd_informasi}", response_model=None)
 def read_informasi_endpoint(request: Request, kd_informasi: str, db: Session = Depends(get_db)):
-    return get_informasi(request, kd_informasi, db)
+    informasi = get_informasi(request, kd_informasi, db)
+    return informasi
 
 @router.get('/')
 def read_all_informasi_endpoint(request: Request, db: Session = Depends(get_db)):
-    return get_all_informasi(request, db)
+    informasi = get_all_informasi(request, db)
+    return informasi
 
 @router.put("/{kd_informasi}")
 def update_informasi_endpoint(request: Request, kd_informasi: str, informasi_data: InformasiSchema, db: Session = Depends(get_db)):

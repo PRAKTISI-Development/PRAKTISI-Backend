@@ -7,7 +7,8 @@ router = APIRouter()
 
 @router.post("/login")
 async def login_for_access_token(request: Request, form_data: dict, db: Session = Depends(get_db)):
+    auth = authenticate_user(request, form_data["userid"], form_data["password"], db)
     try:
-        return authenticate_user(request, form_data["userid"], form_data["password"], db)
+        return auth
     except HTTPException as e:
         return { "detail": e.detail }
