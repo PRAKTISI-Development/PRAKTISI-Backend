@@ -8,7 +8,8 @@ router = APIRouter()
 
 @router.post("/", response_model=DetailPengumpulanSchema)
 async def create_detail_pengumpulan_endpoint(request: Request,detail_pengumpulan_data: DetailPengumpulanSchema=Depends(DetailPengumpulanSchema.as_form),db: Session = Depends(get_db)):
-    return create_detail_pengumpulan(request, detail_pengumpulan_data, db)
+    detail_pengumpulan = create_detail_pengumpulan(request, detail_pengumpulan_data, db)
+    return detail_pengumpulan
 
 @router.get("/{usersid}/{kd_tugas}")
 async def read_detail_pengumpulan_endpoint(request:Request,usersid: str, kd_tugas: str, db: Session = Depends(get_db)):
@@ -22,8 +23,10 @@ async def read_all_detail_pengumpulan_endpoint(request: Request, db: Session = D
 
 @router.put("/{usersid}/{kd_tugas}")
 async def update_detail_pengumpulan_endpoint(request: Request, usersid: str, kd_tugas: str, detail_pengumpulan_data: DetailPengumpulanSchema, db: Session = Depends(get_db)):
-    return update_detail_pengumpulan(request, detail_pengumpulan_data, usersid, kd_tugas, db)
+    detail_pengumpulan = update_detail_pengumpulan(request, detail_pengumpulan_data, usersid, kd_tugas, db)
+    return detail_pengumpulan
 
 @router.delete("/{usersid}/{kd_tugas}")
 async def delete_detail_pengumpulan_endpoint(request:Request, usersid: str, kd_tugas: str, db: Session = Depends(get_db)):
-    return delete_detail_pengumpulan(request, usersid, kd_tugas, db)
+    detail_pengumpulan = delete_detail_pengumpulan(request, usersid, kd_tugas, db)
+    return detail_pengumpulan

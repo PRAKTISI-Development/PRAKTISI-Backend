@@ -8,7 +8,8 @@ router = APIRouter()
 
 @router.post("/")
 async def create_kehadiran_endpoint(request: Request, kehadiran_data: KehadiranSchema, db: Session = Depends(get_db)):
-    return create_kehadiran(request, kehadiran_data, db)
+    kehadiran = create_kehadiran(request, kehadiran_data, db)
+    return kehadiran
 
 @router.get("/{usersid}/{kd_jadwal}")
 async def read_kehadiran_endpoint(request: Request, usersid: str, kd_jadwal: str, db: Session = Depends(get_db)):
@@ -22,8 +23,10 @@ async def read_all_kehadiran_endpoint(request: Request, db: Session = Depends(ge
 
 @router.put("/{usersid}/{kd_jadwal}")
 async def update_kehadiran_endpoint(request: Request, kehadiran_data: KehadiranSchema, db: Session = Depends(get_db), usersid: str= Path(...), kd_jadwal: str= Path(...)):
-    return update_kehadiran(request, kehadiran_data, usersid, kd_jadwal, db)
+    kehadiran = update_kehadiran(request, kehadiran_data, usersid, kd_jadwal, db)
+    return kehadiran
 
 @router.delete("/{usersid}/{kd_jadwal}")
 async def delete_kehadiran_endpoint(request: Request, usersid: str, kd_jadwal: str, db: Session = Depends(get_db)):
-    return delete_kehadiran(request, usersid, kd_jadwal, db)
+    jadwal = delete_kehadiran(request, usersid, kd_jadwal, db)
+    return jadwal

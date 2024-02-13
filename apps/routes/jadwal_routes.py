@@ -8,7 +8,8 @@ router = APIRouter()
 
 @router.post("/", response_model=JadwalSchema)
 async def create_jadwal_endpoint(request: Request,jadwal_data: JadwalSchema, db: Session = Depends(get_db)):
-    return create_jadwal(request, jadwal_data, db)
+    jadwal = create_jadwal(request, jadwal_data, db)
+    return jadwal 
 
 @router.get("/{kd_jadwal}")
 async def read_jadwal_endpoint(request: Request,kd_jadwal: str, db: Session = Depends(get_db)):
@@ -22,8 +23,10 @@ async def read_all_jadwal_endpoint(request: Request,db: Session = Depends(get_db
     
 @router.put("/{kd_jadwal}")
 def update_jadwal_endpoint(request: Request,kd_jadwal: str, jadwal_data: JadwalSchema, db: Session = Depends(get_db)):
-    return update_jadwal(request, jadwal_data, kd_jadwal, db)
-    
+    jadwal = update_jadwal(request, jadwal_data, kd_jadwal, db)
+    return jadwal
+
 @router.delete("/{kd_jadwal}")
 async def delete_jadwal_endpoint(request: Request,kd_jadwal: str, db: Session = Depends(get_db)):
-    return delete_jadwal(request, kd_jadwal, db)
+    jadwal = delete_jadwal(request, kd_jadwal, db)
+    return jadwal

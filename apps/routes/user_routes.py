@@ -4,7 +4,6 @@ from apps.database import get_db
 from apps.controllers.users_controller import *
 from apps.schemas.user_schema import UserSchema
 
-
 router = APIRouter()
 
 @router.post("/", response_model=UserSchema)
