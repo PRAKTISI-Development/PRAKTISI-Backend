@@ -5,7 +5,7 @@ from apps.database import Base
 
 class DetailPengumpulan(Base):
     __tablename__ = 'detail_pengumpulan'
-    id= Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True)
     usersid = Column(String(length=20), ForeignKey('users.userid'))
     kd_tugas = Column(String(length=10), ForeignKey('tugas.kd_tugas'))
     tanggal_dikumpul = Column(DateTime, nullable=False, default=datetime.datetime.now())

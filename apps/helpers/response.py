@@ -24,14 +24,16 @@ def response(request: Request, status_code: int, success: bool, msg: str, data: 
         msg= msg,
         data= data
     )
+
+    content = response_dict.__dict__
     
     if data is None:
-        return JSONResponse(content=response_dict.__dict__)
+        return JSONResponse(content=content)
     
     elif request.method == "POST" and data is not None:
         instance_dict = attributes.instance_dict(data)
         instance_dict.pop('_sa_instance_state', None)
         response_dict.data = instance_dict
-        return JSONResponse(content=response_dict.__dict__)
+        return JSONResponse(content=content)
     else:
-        return response_dict.__dict__
+        return content
