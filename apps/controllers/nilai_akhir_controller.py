@@ -31,7 +31,7 @@ def get_akumulasi(request, kd_matkul: str, db: Session = Depends(get_db)):
     try:
         data, column_names = execute_query(db, kd_matkul)
         list_of_dicts = [dict(zip(column_names, row)) for row in data]
-        return response(request, status_code=200, success=True, msg="success get data", data=list_of_dicts)
+        return response(request, status_code=200, success=True, msg="Nilai berhasil diakumulasikan!", data=list_of_dicts)
     except Exception as e:
         return response(request, status_code=500, success=False, msg=str(e), data=None)
 
